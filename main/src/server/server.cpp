@@ -15,6 +15,10 @@ void Server::create_server(char* port_p, int buffer_size, int backlog){
 
     int ret;    //placeholder for return value
 
+    Client *c;
+
+    char *client_name;
+
     //create a copy of the port name
     this->port = new char[std::strlen(port_p)];
     std::strcpy(this->port, port_p);
@@ -82,9 +86,24 @@ void Server::create_server(char* port_p, int buffer_size, int backlog){
         }else{
             //someone has requested to connect
             //prepare to handle the client here
+            c = new Client();
+            c->create_client(this,active_socket_fd,this->buffer_size);
+            client_name = c->get_client_hostname_ptr();
+            ret = getnameinfo((struct sockaddr *)&client_addr, sizeof(client_addr), client_name, this->buffer_size, this->server_hostname, this->buffer_size, 0);
+            if (ret == -1){
+                std::printf("Could not get client name, skipping client\n");
+                continue;
+            }
             
-            //placeholder
-            std::printf("Connected here\n");
+            std::thread t (handle_client,c);
         }
     }
+}
+
+void handle_client(Client* c){
+    std::printf("Reached here, client hostname = %s\n", c->get_client_hostname_ptr());
+    //while(1){
+    //    //infinite loop to handle receiving messages here
+    //}
+    return;
 }

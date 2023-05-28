@@ -5,5 +5,5 @@
 int main(int argc, char **argv){
     std::printf("Hi\n");
     Server s;
-    s.create_server("6667");
+    s.create_server("6666");
 }   

@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cerrno>
+#include <thread>
 
 //not part of the standard so they never made cunistd.h.... So weird
 #include <unistd.h>
@@ -11,6 +12,8 @@
 #include <sys/socket.h> 
 #include <sys/types.h>
 #include <netdb.h>
+
+#include "client.hpp"
 
 
 class Server{
@@ -28,3 +31,5 @@ public:
     // This function will end the server and close all connections
     void destroy_server(); 
 };
+
+void handle_client(Client *c);

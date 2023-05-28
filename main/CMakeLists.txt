@@ -4,6 +4,7 @@ project(open_eex)
 
 include_directories(
     inc/server
+    inc/client
     )
 
 file(GLOB SOURCES src/*/*.cpp)
