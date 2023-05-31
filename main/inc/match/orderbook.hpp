@@ -1,33 +1,20 @@
 #pragma once
 #include <queue>
 #include <mutex>
+#include <shared_mutex>
+#include <string>
+
 
 template<typename T>
 class LockedPriorityQueue {
 public:
-    LockedPriorityQueue() {}
-
-    void push(const T& value) {
-        std::unique_lock<std::mutex> lock(mutex_);
-        heap_.push(value);
-    }
-
-    void pop() {
-        std::unique_lock<std::mutex> lock(mutex_);
-        heap_.pop();
-    }
-
-    T top() const {
-        std::shared_lock<std::mutex> lock(mutex_);
-        return heap_.top();
-    }
-
-    bool empty() const {
-        std::shared_lock<std::mutex> lock(mutex_);
-        return heap_.empty();
-    }
-
+    LockedPriorityQueue();
+    void push(const T& value);
+    void pop();
+    T top() const;
+    bool empty() const;
+    std::string toString() const;
 private:
     std::priority_queue<T> heap_;
-    mutable std::mutex mutex_;
+    mutable std::shared_mutex mutex_;
 };
