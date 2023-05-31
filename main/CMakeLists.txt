@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.15)
 
 project(open_eex)
 
+add_subdirectory(
+    tests
+    )
+
 include_directories(
     inc/server
     inc/client
