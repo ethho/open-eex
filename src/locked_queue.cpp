@@ -1,7 +1,27 @@
 #include "locked_queue.h"
 
+// Default constructor
 template<typename T>
 LockedPriorityQueue<T>::LockedPriorityQueue() {}
+
+// Max heap comparator
+template<typename T>
+bool MaxHeapComparator<T>::operator()(const T& a, const T& b) const override {
+    return a < b;
+}
+
+// Min heap comparator
+template<typename T>
+bool MinHeapComparator<T>::operator()(const T& a, const T& b) const override {
+    return a < b;
+}
+
+// Constructor with custom comparator
+template<typename T>
+LockedPriorityQueue<T>::LockedPriorityQueue(Compare<T> comparator) {
+    comparator_ = comparator;
+}
+
 
 template<typename T>
 void LockedPriorityQueue<T>::push(const T& value) {
