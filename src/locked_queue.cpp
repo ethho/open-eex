@@ -6,20 +6,20 @@ LockedPriorityQueue<T>::LockedPriorityQueue() {}
 
 // Max heap comparator
 template<typename T>
-bool MaxHeapComparator<T>::operator()(const T& a, const T& b) const override {
+bool MaxHeapComparator<T>::operator()(const T& a, const T& b) const {
     return a < b;
 }
 
 // Min heap comparator
 template<typename T>
-bool MinHeapComparator<T>::operator()(const T& a, const T& b) const override {
+bool MinHeapComparator<T>::operator()(const T& a, const T& b) const {
     return a < b;
 }
 
 // Constructor with custom comparator
 template<typename T>
-LockedPriorityQueue<T>::LockedPriorityQueue(Compare<T> comparator) {
-    comparator_ = comparator;
+LockedPriorityQueue<T>::LockedPriorityQueue(Comparator<T> comparator) {
+    std::priority_queue<T, std::vector<T>, Comparator<T>> heap_;
 }
 
 
