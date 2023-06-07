@@ -5,7 +5,7 @@
 #include <cerrno>
 #include <thread>
 
-//not part of the standard so they never made cunistd.h.... So weird
+//os related libraries
 #include <unistd.h>
 
 //not sure what the C++ equivalent headers are
@@ -14,6 +14,7 @@
 #include <netdb.h>
 
 #include "client.hpp"
+#include "messages.hpp"
 
 
 class Server{
@@ -26,7 +27,7 @@ private:
 
 public:
     // This function sets up the socket stuff and listens for incoming connections
-    void create_server(char* port_p, int buffer_size = 1024, int backlog = 10); 
+    void create_server(const char* port_p, int buffer_size = 1024, int backlog = 10); 
     
     // This function will end the server and close all connections
     void destroy_server(); 

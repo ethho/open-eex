@@ -1,6 +1,6 @@
 #include "server.hpp"
 
-void Server::create_server(char* port_p, int buffer_size, int backlog){
+void Server::create_server(const char* port_p, int buffer_size, int backlog){
 
     //using the struct key word because the header files are native to C 
     //we do not want overlap with any other type with the same name in the global namespace
@@ -95,15 +95,35 @@ void Server::create_server(char* port_p, int buffer_size, int backlog){
                 continue;
             }
             
-            std::thread t (handle_client,c);
+            handle_client(c);
         }
     }
 }
 
 void handle_client(Client* c){
     std::printf("Reached here, client hostname = %s\n", c->get_client_hostname_ptr());
-    //while(1){
-    //    //infinite loop to handle receiving messages here
-    //}
+    int n_bytes;
+    int n;
+    while(true){
+        //infinite loop to handle receiving messages here
+
+        //reset the buffer to 0 
+        std::memset(c->client_buffer,0,c->buffer_size);
+
+        //receive bytes from the client
+        n_bytes = recv(c->active_socket_fd, c->client_buffer, c->buffer_size,0);
+        if(n_bytes <= 0){
+            return;
+        }
+        std::string buf_contents(c->client_buffer, c->client_buffer + n_bytes);
+
+        std::vector<std::string> tokens = generate_tokens(buf_contents);
+
+        n = tokens.size();
+        for(int i=0;i<n;i++){
+           std::cout << tokens[i] << " ";
+        }
+        std::cout << '\n';
+    }
     return;
 }
