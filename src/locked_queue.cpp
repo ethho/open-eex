@@ -7,7 +7,7 @@ LockedPriorityQueue<T>::LockedPriorityQueue() {}
 // Max heap comparator
 template<typename T>
 bool MaxHeapComparator<T>::operator()(const T& a, const T& b) const {
-    return a < b;
+    return a > b;
 }
 
 // Min heap comparator
@@ -18,8 +18,9 @@ bool MinHeapComparator<T>::operator()(const T& a, const T& b) const {
 
 // Constructor with custom comparator
 template<typename T>
-LockedPriorityQueue<T>::LockedPriorityQueue(Comparator<T> comparator) {
-    std::priority_queue<T, std::vector<T>, Comparator<T>> heap_;
+MinHeap<T>::MinHeap() {
+    // Assign heap_ to a priority queue with a custom comparator
+    heap_ = std::priority_queue<T, std::vector<T>, MinHeapComparator<T>> {};
 }
 
 

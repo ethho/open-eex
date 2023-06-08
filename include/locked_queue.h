@@ -3,6 +3,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <functional>
+#include <memory>
 
 // Base comparator class
 template<typename T>
@@ -27,7 +28,6 @@ template<typename T>
 class LockedPriorityQueue {
 public:
     LockedPriorityQueue();
-    LockedPriorityQueue(Comparator<T> comparator);
     void push(const T& value);
     void pop();
     T top() const;
@@ -35,6 +35,15 @@ public:
 private:
     mutable std::shared_mutex mutex_;
     std::priority_queue<T> heap_;
+};
+
+template<typename T>
+class MinHeap: public LockedPriorityQueue<T> {
+public:
+    MinHeap();
+private:
+    mutable std::shared_mutex mutex_;
+    std::priority_queue<T, std::vector<T>, MinHeapComparator<T>> heap_;
 };
 
 
@@ -62,7 +71,7 @@ TEST_CASE("test the locked queue double template")
 
 TEST_CASE("test a min heap")
 {
-    LockedPriorityQueue<double> q;
+    MinHeap<double> q {};
 	q.push(1.1);
     CHECK(q.top() == 1.1);
 	q.push(3.3);
