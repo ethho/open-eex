@@ -22,7 +22,7 @@ private:
 #include "doctest/doctest.h"
 TEST_CASE("test the locked queue int template")
 {
-    LockedPriorityQueue<int> q {};
+    LockedPriorityQueue<int> q;
 	q.push(1);
     CHECK(q.top() == 1);
 	q.push(3);
@@ -32,7 +32,7 @@ TEST_CASE("test the locked queue int template")
 
 TEST_CASE("test the locked queue double template")
 {
-    LockedPriorityQueue<double> q {};
+    LockedPriorityQueue<double> q;
 	q.push(1.1);
     CHECK(q.top() == 1.1);
 	q.push(3.3);
@@ -40,13 +40,13 @@ TEST_CASE("test the locked queue double template")
     CHECK(q.top() == 6.7);
 }
 
-// TEST_CASE("test a min heap")
-// {
-//     LockedPriorityQueue<double, std::greater<double>> q;
-// 	q.push(1.1);
-//     CHECK(q.top() == 1.1);
-// 	q.push(3.3);
-// 	q.push(6.7);
-//     CHECK(q.top() == 1.1);
-// }
+TEST_CASE("test a min heap")
+{
+    LockedPriorityQueue<double, std::greater<double>> q;
+	q.push(1.1);
+    CHECK(q.top() == 1.1);
+	q.push(3.3);
+	q.push(6.7);
+    CHECK(q.top() == 1.1);
+}
 #endif

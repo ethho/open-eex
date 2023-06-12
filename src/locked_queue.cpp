@@ -1,9 +1,7 @@
 #include "locked_queue.h"
 
 template<typename T, typename Compare>
-LockedPriorityQueue<T, Compare>::LockedPriorityQueue()
-{
-}
+LockedPriorityQueue<T, Compare>::LockedPriorityQueue() {}
 
 template<typename T, typename Compare>
 void LockedPriorityQueue<T, Compare>::push(const T& value)
@@ -29,7 +27,7 @@ T LockedPriorityQueue<T, Compare>::top() const
 template<typename T, typename Compare>
 bool LockedPriorityQueue<T, Compare>::empty() const
 {
-    std::shared_lock<std::shared_mutex> lock(mutex_);
+    std::unique_lock<std::shared_mutex> lock(mutex_);
     return heap_.empty();
 }
 
