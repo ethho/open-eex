@@ -5,25 +5,6 @@
 #include <functional>
 #include <memory>
 
-// Base comparator class
-template<typename T>
-class Comparator {
-public:
-    virtual bool operator()(const T& a, const T& b) const = 0;
-};
-
-template<typename T>
-class MaxHeapComparator : public Comparator<T> {
-public:
-    bool operator()(const T& a, const T& b) const override;
-};
-
-template<typename T>
-class MinHeapComparator : public Comparator<T> {
-public:
-    bool operator()(const T& a, const T& b) const override;
-};
-
 template<typename T>
 class LockedPriorityQueue {
 public:
@@ -34,24 +15,31 @@ public:
     bool empty() const;
 private:
     mutable std::shared_mutex mutex_;
-    std::priority_queue<T> heap_;
+    // std::priority_queue<T, std::vector<T>, std::less<T>> heap_;
 };
+
+template<typename T>
+class MaxHeap: public LockedPriorityQueue<T> {
+public:
+    MaxHeap();
+private:
+    std::priority_queue<T, std::vector<T>, std::less<T>> heap_;
+};
+
 
 template<typename T>
 class MinHeap: public LockedPriorityQueue<T> {
 public:
     MinHeap();
 private:
-    mutable std::shared_mutex mutex_;
-    std::priority_queue<T, std::vector<T>, MinHeapComparator<T>> heap_;
+    std::priority_queue<T, std::vector<T>, std::greater<T>> heap_;
 };
-
 
 #ifdef ENABLE_DOCTEST_IN_LIBRARY
 #include "doctest/doctest.h"
 TEST_CASE("test the locked queue int template")
 {
-    LockedPriorityQueue<int> q {};
+    MaxHeap<int> q {};
 	q.push(1);
     CHECK(q.top() == 1);
 	q.push(3);
@@ -61,7 +49,7 @@ TEST_CASE("test the locked queue int template")
 
 TEST_CASE("test the locked queue double template")
 {
-    LockedPriorityQueue<double> q {};
+    MaxHeap<double> q {};
 	q.push(1.1);
     CHECK(q.top() == 1.1);
 	q.push(3.3);
