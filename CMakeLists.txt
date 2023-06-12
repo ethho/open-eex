@@ -40,6 +40,8 @@ find_lto(CXX)
 set(SOURCES          # All .cpp files in src/
     src/example.cpp
     src/locked_queue.cpp
+    src/order.cpp
+    # src/matching_engine.cpp
 )
 set(TESTFILES        # All .cpp files in tests/
     tests/main.cpp
