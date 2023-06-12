@@ -13,6 +13,7 @@ public:
     void pop();
     T top() const;
     bool empty() const;
+    void print() const;
 private:
     mutable std::shared_mutex mutex_;
     std::priority_queue<T, std::vector<T>, Compare> heap_;

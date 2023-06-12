@@ -1,11 +1,11 @@
 #include "order.h"
 
 Order::Order():
-symbol_("AAPL"), price_(0.0), volume_(0.0)
+symbol_("AAPL"), price_(0.0), volume_(0.0), isActive_(true)
 {}
 
 Order::Order(const std::string& symbol, double price, double volume):
-symbol_(symbol), price_(price), volume_(volume)
+symbol_(symbol), price_(price), volume_(volume), isActive_(true)
 {}
 
 std::string Order::symbol() const
@@ -21,6 +21,16 @@ double Order::price() const
 double Order::volume() const
 {
     return volume_;
+}
+
+bool Order::isActive() const
+{
+    return isActive_;
+}
+
+void Order::deactivate()
+{
+    isActive_ = false;
 }
 
 bool Order::isSell() const

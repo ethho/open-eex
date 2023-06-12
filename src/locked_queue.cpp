@@ -30,3 +30,14 @@ bool LockedPriorityQueue<T, Compare>::empty() const
     std::unique_lock<std::shared_mutex> lock(mutex_);
     return heap_.empty();
 }
+
+template<typename T, typename Compare>
+void LockedPriorityQueue<T, Compare>::print() const
+{
+    std::shared_lock<std::shared_mutex> lock(mutex_);
+    std::priority_queue<T, std::vector<T>, Compare> heapCopy = heap_;
+    while (!heapCopy.empty()) {
+        std::cout << heapCopy.top() << "\n" << std::endl;
+        heapCopy.pop();
+    }
+}

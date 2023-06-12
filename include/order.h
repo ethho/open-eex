@@ -10,6 +10,8 @@ public:
     double volume() const;
     bool isSell() const;
     bool isBuy() const;
+    bool isActive() const;
+    void deactivate();
     bool operator<(const Order& rhs) const;
     bool operator>(const Order& rhs) const;
     bool operator==(const Order& rhs) const;
@@ -17,6 +19,7 @@ private:
     std::string symbol_;
     double price_;
     double volume_;
+    bool isActive_;
 };
 
 
