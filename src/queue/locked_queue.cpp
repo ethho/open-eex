@@ -1,4 +1,4 @@
-#include "locked_queue.h"
+#include "locked_queue.hpp"
 
 template<typename T, typename Compare>
 LockedPriorityQueue<T, Compare>::LockedPriorityQueue() {}
