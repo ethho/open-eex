@@ -30,13 +30,3 @@ bool LockedPriorityQueue<T, Compare>::empty() const
     std::unique_lock<std::shared_mutex> lock(mutex_);
     return heap_.empty();
 }
-
-
-#ifdef ENABLE_DOCTEST_IN_LIBRARY
-#include "doctest/doctest.h"
-TEST_CASE("we can have tests written here, to test impl. details")
-{
-    CHECK(true);
-}
-#endif
-
