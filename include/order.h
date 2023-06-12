@@ -22,6 +22,7 @@ private:
     bool isActive_;
 };
 
+std::ostream& operator<<(std::ostream& os, Order const & order);
 
 #ifdef ENABLE_DOCTEST_IN_LIBRARY
 #include "doctest/doctest.h"

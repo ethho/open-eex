@@ -4,6 +4,9 @@
 #include <shared_mutex>
 #include <functional>
 #include <memory>
+#include <iostream>
+#include <string>
+
 
 template<typename T, typename Compare = std::less<T>>
 class LockedPriorityQueue {
@@ -13,7 +16,7 @@ public:
     void pop();
     T top() const;
     bool empty() const;
-    void print() const;
+    // std::ostream& operator<<(std::ostream& os, LockedPriorityQueue<T, Compare> const & queue);
 private:
     mutable std::shared_mutex mutex_;
     std::priority_queue<T, std::vector<T>, Compare> heap_;

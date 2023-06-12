@@ -58,3 +58,9 @@ bool Order::operator==(const Order& rhs) const
     return symbol_ == rhs.symbol_ && price_ == rhs.price_ && volume_ == rhs.volume_;
 }
 
+
+std::ostream& operator<<(std::ostream& os, Order const & order) {
+    os << "Order(symbol=" << order.symbol() << ", price=" << order.price();
+    os << ", volume=" << order.volume() << ", isActive=" << order.isActive() << ")";
+    return os;
+}

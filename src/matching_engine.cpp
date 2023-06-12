@@ -23,10 +23,8 @@ void MatchingEngine::cancelOrder(const Order& order)
 
 void MatchingEngine::printOrderBook() const
 {
-    std::cout << "Buy Orders:" << std::endl;
-    buyOrders_.print();
-    std::cout << "Sell Orders:" << std::endl;
-    sellOrders_.print();
+    std::cout << "Buy Orders:" << "\n" << buyOrders_ << std::endl;
+    std::cout << "Sell Orders:" << "\n" << buyOrders_ << std::endl;
 }
 
 

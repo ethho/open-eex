@@ -31,13 +31,14 @@ bool LockedPriorityQueue<T, Compare>::empty() const
     return heap_.empty();
 }
 
-template<typename T, typename Compare>
-void LockedPriorityQueue<T, Compare>::print() const
-{
-    std::shared_lock<std::shared_mutex> lock(mutex_);
-    std::priority_queue<T, std::vector<T>, Compare> heapCopy = heap_;
-    while (!heapCopy.empty()) {
-        std::cout << heapCopy.top() << "\n" << std::endl;
-        heapCopy.pop();
-    }
-}
+// template<typename T, typename Compare>
+// std::ostream& LockedPriorityQueue<T, Compare>::operator<<(std::ostream& os, LockedPriorityQueue<T, Compare> const & queue) {
+//     std::shared_lock<std::shared_mutex> lock(mutex_);
+//     std::priority_queue<T, std::vector<T>, Compare> heapCopy = heap_;
+//     os << "LockedPriorityQueue(";
+//     while (!heapCopy.empty()) {
+//         os << heapCopy.top() << ", ";
+//         heapCopy.pop();
+//     }
+//     os << ")";
+// }
