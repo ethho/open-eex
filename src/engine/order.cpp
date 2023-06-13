@@ -63,3 +63,8 @@ bool Order::operator==(const Order& rhs) const
     return symbol_ == rhs.symbol_ && price_ == rhs.price_ && volume_ == rhs.volume_;
 }
 
+std::ostream& operator<<(std::ostream& s, const Order& o)
+{   
+    s << o.symbol_;
+    return s;
+}

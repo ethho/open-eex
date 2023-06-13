@@ -58,7 +58,7 @@ void LockedPriorityQueue<T, Compare>::print() const
     std::shared_lock<std::shared_mutex> lock(mutex_);
     std::priority_queue<T, std::vector<T>, Compare> heapCopy = heap_;
     while (!heapCopy.empty()) {
-        std::cout << heapCopy.top() << "\n" << std::endl;
+        std::cout << (heapCopy.top()) << "\n";
         heapCopy.pop();
     }
 }

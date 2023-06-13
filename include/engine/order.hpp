@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <iostream>
 
 class Order {
 public:
@@ -16,6 +17,7 @@ public:
     bool operator<(const Order& rhs) const;
     bool operator>(const Order& rhs) const;
     bool operator==(const Order& rhs) const;
+    friend std::ostream& operator<<(std::ostream& s, const Order& o);
 private:
     std::string symbol_;
     double price_;
