@@ -6,6 +6,7 @@ public:
     Order();
     Order(const std::string& symbol, double price, double volume);
     std::string symbol() const;
+    int id() const;
     double price() const;
     double volume() const;
     bool isSell() const;
@@ -20,6 +21,7 @@ private:
     double price_;
     double volume_;
     bool isActive_;
+    int id_;
 };
 
 

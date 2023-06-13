@@ -13,6 +13,11 @@ std::string Order::symbol() const
     return symbol_;
 }
 
+int Order::id() const
+{
+    return id_;
+}
+
 double Order::price() const
 {
     return price_;

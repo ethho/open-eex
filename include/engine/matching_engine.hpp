@@ -6,7 +6,7 @@ class MatchingEngine {
 public:
     MatchingEngine();
     void addOrder(const Order& order);
-    void cancelOrder(const Order& order);
+    void cancelOrder(Order& order);
     void printOrderBook() const;
 private:
     LockedPriorityQueue<Order, std::greater<Order>> buyOrders_;

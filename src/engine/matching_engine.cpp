@@ -15,8 +15,9 @@ void MatchingEngine::addOrder(const Order& order)
     orders_.insert({order.id(), order});
 }
 
-void MatchingEngine::cancelOrder(const Order& order)
+void MatchingEngine::cancelOrder(Order& order)
 {
+    //deactivate is a non const function, so we cannot have order has a const input here
     order.deactivate();
     // TODO
 }

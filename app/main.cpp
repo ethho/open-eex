@@ -10,8 +10,8 @@
 #include <stdlib.h>
 
 #include "exampleConfig.h"
-#include "example.h"
-#include "locked_queue.h"
+#include "example.hpp"
+#include "locked_queue.hpp"
 
 /*
  * Simple main program that demontrates how access
