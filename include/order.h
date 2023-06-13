@@ -9,16 +9,13 @@ class Order {
 public:
     Order();
     Order(const std::string& symbol, double price, double volume);
+    virtual ~Order() = default;
     std::string symbol() const;
     double price() const;
     double volume() const;
     TimePoint timePlaced() const;
-    bool isSell() const;
-    bool isBuy() const;
     bool isActive() const;
     void deactivate();
-    bool operator<(const Order& rhs) const;
-    bool operator>(const Order& rhs) const;
     bool operator==(const Order& rhs) const;
     bool operator!=(const Order& rhs) const;
 private:
@@ -27,6 +24,33 @@ private:
     double price_;
     double volume_;
     bool isActive_;
+};
+
+class Bid: public Order {
+public:
+    Bid();
+    Bid(const std::string& symbol, double price, double volume);
+    virtual ~Bid() = default;
+    /*
+     * Comparator overloads sort by price-time priority.
+     * If order1 has a better price than order2, then order1 is given priority
+     * and order1 > order2.
+     */
+    bool operator<(const Bid& rhs) const;
+    bool operator>(const Bid& rhs) const;
+};
+
+class Ask: public Order {
+public:
+    Ask();
+    Ask(const std::string& symbol, double price, double volume);
+    /*
+     * Comparator overloads sort by price-time priority.
+     * If order1 has a better price than order2, then order1 is given priority
+     * and order1 > order2.
+     */
+    bool operator<(const Ask& rhs) const;
+    bool operator>(const Ask& rhs) const;
 };
 
 std::ostream& operator<<(std::ostream& os, Order const & order);

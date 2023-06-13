@@ -42,26 +42,6 @@ void Order::deactivate()
     isActive_ = false;
 }
 
-bool Order::isSell() const
-{
-    return volume_ < 0.0;
-}
-
-bool Order::isBuy() const
-{
-    return volume_ > 0.0;
-}
-
-bool Order::operator<(const Order& rhs) const
-{
-    return price_ < rhs.price_;
-}
-
-bool Order::operator>(const Order& rhs) const
-{
-    return price_ > rhs.price_;
-}
-
 bool Order::operator==(const Order& rhs) const
 {
     return symbol_ == rhs.symbol_ && price_ == rhs.price_ && volume_ == rhs.volume_;
@@ -72,9 +52,41 @@ bool Order::operator!=(const Order& rhs) const
     return !(*this == rhs);
 }
 
+bool Bid::operator<(const Bid& rhs) const
+{
+    return price_ < rhs.price_;
+}
+
+bool Bid::operator>(const Bid& rhs) const
+{
+    return price_ > rhs.price_;
+}
+
+bool Bid::operator==(const Bid& rhs) const
+{
+    return symbol_ == rhs.symbol_ && price_ == rhs.price_ && volume_ == rhs.volume_;
+}
+
+bool Bid::operator!=(const Bid& rhs) const
+{
+    return !(*this == rhs);
+}
+
+bool Ask::operator<(const Ask& rhs) const
+{
+    // Reversed because asks with lower price have higher priority.
+    return price_ > rhs.price_;
+}
+
+bool Ask::operator>(const Ask& rhs) const
+{
+    return price_ < rhs.price_;
+}
+
 std::ostream& operator<<(std::ostream& os, Order const & order) {
     std::stringstream ss;
-    ss << "Order(symbol=" << order.symbol() << ", price=" << order.price();
+    ss << decltype(order)::name() << "(";
+    ss << "(symbol=" << order.symbol() << ", price=" << order.price();
     ss << ", volume=" << order.volume() << ", isActive=" << order.isActive();
     ss << ", timePlaced=" << std::chrono::system_clock::to_time_t(order.timePlaced());
     ss << ")";
