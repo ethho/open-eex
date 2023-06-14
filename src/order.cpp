@@ -50,6 +50,11 @@ bool Order::operator!=(const Order& rhs) const
     return !(*this == rhs);
 }
 
+std::string Order::typeName() const
+{
+    return "Order";
+}
+
 Bid::Bid()
 : Order() {}
 
@@ -60,14 +65,30 @@ Bid::Bid(const std::string& symbol, double price, double volume)
     }
 }
 
+Bid::Bid(const Order& order) : Bid(order.symbol(), order.price(), order.volume()) {}
+
 bool Bid::operator<(const Bid& rhs) const
 {
-    return price_ < rhs.price_;
+    if (price_ == rhs.price_) {
+        // If prices are equal, then the order placed first has priority.
+        return timePlaced_ > rhs.timePlaced_;
+    } else {
+        return price_ < rhs.price_;
+    }
 }
 
 bool Bid::operator>(const Bid& rhs) const
 {
-    return price_ > rhs.price_;
+    if (price_ == rhs.price_) {
+        return timePlaced_ < rhs.timePlaced_;
+    } else {
+        return price_ > rhs.price_;
+    }
+}
+
+std::string Bid::typeName() const
+{
+    return "Bid";
 }
 
 Ask::Ask()
@@ -80,25 +101,49 @@ Ask::Ask(const std::string& symbol, double price, double volume)
     }
 }
 
+Ask::Ask(const Order& order) : Ask(order.symbol(), order.price(), order.volume()) {}
+
 bool Ask::operator<(const Ask& rhs) const
 {
-    // Reversed because asks with lower price have higher priority.
-    return price_ > rhs.price_;
+    if (price_ == rhs.price_) {
+        return timePlaced_ > rhs.timePlaced_;
+    } else {
+        // Lower price has priority for asks.
+        return price_ > rhs.price_;
+    }
 }
 
 bool Ask::operator>(const Ask& rhs) const
 {
-    return price_ < rhs.price_;
+    if (price_ == rhs.price_) {
+        return timePlaced_ < rhs.timePlaced_;
+    } else {
+        // Lower price has priority for asks.
+        return price_ < rhs.price_;
+    }
 }
 
+std::string Ask::typeName() const
+{
+    return "Ask";
+}
 
-std::ostream& operator<<(std::ostream& os, Order const & order) {
+std::ostream& operator<<(std::ostream& os, Bid const & order) {
     std::stringstream ss;
-    ss << typeid(order).name() << "(";
-    ss << "(symbol=" << order.symbol() << ", price=" << order.price();
-    ss << ", volume=" << order.volume() << ", isActive=" << order.isActive();
-    ss << ", timePlaced=" << std::chrono::system_clock::to_time_t(order.timePlaced());
-    ss << ")";
+    ss << order.typeName();
+    ss << "(symbol: " << order.symbol() << ", price: " << order.price() << ", volume: ";
+    ss << order.volume() << ", timePlaced: " << order.timePlaced().time_since_epoch().count();
+    ss << ", isActive: " << order.isActive() << ")";
+    os << ss.str();
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, Ask const & order) {
+    std::stringstream ss;
+    ss << order.typeName();
+    ss << "(symbol: " << order.symbol() << ", price: " << order.price() << ", volume: ";
+    ss << order.volume() << ", timePlaced: " << order.timePlaced().time_since_epoch().count();
+    ss << ", isActive: " << order.isActive() << ")";
     os << ss.str();
     return os;
 }

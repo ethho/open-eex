@@ -18,6 +18,7 @@ public:
     void deactivate();
     bool operator==(const Order& rhs) const;
     bool operator!=(const Order& rhs) const;
+    std::string typeName() const;
 protected:
     std::string symbol_;
     double price_;
@@ -30,6 +31,7 @@ class Bid: public Order {
 public:
     Bid();
     Bid(const std::string& symbol, double price, double volume);
+    Bid(const Order& order);
     virtual ~Bid() = default;
     /*
      * Comparator overloads sort by price-time priority.
@@ -38,12 +40,14 @@ public:
      */
     bool operator<(const Bid& rhs) const;
     bool operator>(const Bid& rhs) const;
+    std::string typeName() const;
 };
 
 class Ask: public Order {
 public:
     Ask();
     Ask(const std::string& symbol, double price, double volume);
+    Ask(const Order& order);
     /*
      * Comparator overloads sort by price-time priority.
      * If order1 has a better price than order2, then order1 is given priority
@@ -51,23 +55,36 @@ public:
      */
     bool operator<(const Ask& rhs) const;
     bool operator>(const Ask& rhs) const;
+    std::string typeName() const;
 };
 
-std::ostream& operator<<(std::ostream& os, Order const & order);
+std::ostream& operator<<(std::ostream& os, Ask const & order);
+
+std::ostream& operator<<(std::ostream& os, Bid const & order);
+
 
 #ifdef ENABLE_DOCTEST_IN_LIBRARY
 #include "doctest/doctest.h"
 TEST_CASE("test order initialization")
 {
-    Order o;
-    CHECK(o.symbol() == "AAPL");
-    CHECK(o.price() == 0.0);
-    CHECK(o.volume() == 0.0);
+    Ask a;
+    CHECK(a.symbol() == "AAPL");
+    CHECK(a.price() == 0.0);
+    CHECK(a.volume() == 0.0);
+
+    // Check that error is raised when volume is negative
+    CHECK_THROWS(Ask("AAPL", 10.0, 100.0));
 
     std::stringstream ss;
-    ss << o;
+    ss << a;
     // CHECK(ss.str() == "foobar");
-    CHECK(ss.str().find("Order") == 0);
+    CHECK(ss.str().find("Ask") == 0);
+
+    Bid b {"AAPL", 10.0, 100.0};
+    std::stringstream ss2;
+    ss2 << b;
+    CHECK(ss2.str().find("Bid") == 0);
+    CHECK_THROWS(Bid("AAPL", 10.0, -100.0));
 }
 
 TEST_CASE("test operator overloads")
