@@ -100,12 +100,12 @@ TEST_CASE("test operator overloads")
     // Check operator overloads, which represent price-time priority
     CHECK(b0 != b1); // Different timePlaced
     CHECK(b0 > b1); // Same price, but b0 placed earlier
-    CHECK(b1 < b2);
+    CHECK(b1 < b2); // Better price
     CHECK(b2 > b1);
-    CHECK(b2 > b3);
+    CHECK(b2 > b3); // Better price
 
     // Check overloads for asks
-    CHECK(a0 > a2);
+    CHECK(a0 > a2); // Better price
     CHECK(a2 < a0);
     CHECK(a0 != a1);
     CHECK(a0 > a1); // Same price, but a0 placed earlier
