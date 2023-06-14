@@ -106,7 +106,7 @@ TEST_CASE("test operator overloads")
 
     // Check overloads for asks
     CHECK(a0 > a2);
-    CHECK(a2 > a0);
+    CHECK(a2 < a0);
     CHECK(a0 != a1);
     CHECK(a0 > a1); // Same price, but a0 placed earlier
 }
