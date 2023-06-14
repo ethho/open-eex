@@ -1,16 +1,14 @@
 #include "order.h"
 
-Order::Order():
-symbol_("AAPL"), price_(0.0), volume_(0.0), isActive_(true)
-{
-    timePlaced_ = std::chrono::system_clock::now();
-}
+Order::Order()
+: symbol_("AAPL"), price_(0.0), volume_(0.0),
+  timePlaced_(std::chrono::system_clock::now()), isActive_(true)
+{}
 
-Order::Order(const std::string& symbol, double price, double volume):
-symbol_(symbol), price_(price), volume_(volume), isActive_(true)
-{
-    timePlaced_ = std::chrono::system_clock::now();
-}
+Order::Order(const std::string& symbol, double price, double volume)
+: symbol_(symbol), price_(price), volume_(volume),
+  timePlaced_(std::chrono::system_clock::now()), isActive_(true)
+{}
 
 std::string Order::symbol() const
 {
@@ -44,12 +42,22 @@ void Order::deactivate()
 
 bool Order::operator==(const Order& rhs) const
 {
-    return symbol_ == rhs.symbol_ && price_ == rhs.price_ && volume_ == rhs.volume_;
+    return symbol_ == rhs.symbol_ && price_ == rhs.price_ && volume_ == rhs.volume_ && timePlaced_ == rhs.timePlaced_;
 }
 
 bool Order::operator!=(const Order& rhs) const
 {
     return !(*this == rhs);
+}
+
+Bid::Bid()
+: Order() {}
+
+Bid::Bid(const std::string& symbol, double price, double volume)
+: Order(symbol, price, volume) {
+    if (volume < 0) {
+        throw std::invalid_argument("Bid volume must be positive.");
+    }
 }
 
 bool Bid::operator<(const Bid& rhs) const
@@ -62,14 +70,14 @@ bool Bid::operator>(const Bid& rhs) const
     return price_ > rhs.price_;
 }
 
-bool Bid::operator==(const Bid& rhs) const
-{
-    return symbol_ == rhs.symbol_ && price_ == rhs.price_ && volume_ == rhs.volume_;
-}
+Ask::Ask()
+: Order() {}
 
-bool Bid::operator!=(const Bid& rhs) const
-{
-    return !(*this == rhs);
+Ask::Ask(const std::string& symbol, double price, double volume)
+: Order(symbol, price, volume) {
+    if (volume > 0) {
+        throw std::invalid_argument("Ask volume must be negative.");
+    }
 }
 
 bool Ask::operator<(const Ask& rhs) const
@@ -83,9 +91,10 @@ bool Ask::operator>(const Ask& rhs) const
     return price_ < rhs.price_;
 }
 
+
 std::ostream& operator<<(std::ostream& os, Order const & order) {
     std::stringstream ss;
-    ss << decltype(order)::name() << "(";
+    ss << typeid(order).name() << "(";
     ss << "(symbol=" << order.symbol() << ", price=" << order.price();
     ss << ", volume=" << order.volume() << ", isActive=" << order.isActive();
     ss << ", timePlaced=" << std::chrono::system_clock::to_time_t(order.timePlaced());

@@ -18,11 +18,11 @@ public:
     void deactivate();
     bool operator==(const Order& rhs) const;
     bool operator!=(const Order& rhs) const;
-private:
+protected:
     std::string symbol_;
-    TimePoint timePlaced_;
     double price_;
     double volume_;
+    TimePoint timePlaced_;
     bool isActive_;
 };
 
@@ -72,18 +72,25 @@ TEST_CASE("test order initialization")
 
 TEST_CASE("test operator overloads")
 {
-    Order o1 {"AAPL", 10.0, 100.0};
-    Order o2 {"AAPL", 50.0, 100.0};
-    Order o3 {"AAPL", 40.0, -10.0};
-    Order o4 {"AAPL", 50.0, 100.0};
-    Order o5 {"AAPL", 50.0, 100.0};
-    CHECK(o1 < o2);
-    CHECK(o2 > o3);
-    CHECK(o2 == o4);
+    Bid b0 {"AAPL", 10.0, 100.0};
+    Bid b1 {"AAPL", 10.0, 100.0};
+    Bid b2 {"AAPL", 50.0, 100.0};
+    Bid b3 {"AAPL", 40.0, 10.0};
+    Ask a0 {"AAPL", 50.0, -100.0};
+    Ask a1 {"AAPL", 50.0, -100.0};
+    Ask a2 {"AAPL", 60.0, -100.0};
 
-    // Due to time priority
-    CHECK(o4 != o5);
-    CHECK(o5 < o4);
-    CHECK(o4 > o5);
+    // Check operator overloads, which represent price-time priority
+    CHECK(b0 != b1); // Different timePlaced
+    CHECK(b0 > b1); // Same price, but b0 placed earlier
+    CHECK(b1 < b2);
+    CHECK(b2 > b1);
+    CHECK(b2 > b3);
+
+    // Check overloads for asks
+    CHECK(a0 > a2);
+    CHECK(a2 > a0);
+    CHECK(a0 != a1);
+    CHECK(a0 > a1); // Same price, but a0 placed earlier
 }
 #endif
