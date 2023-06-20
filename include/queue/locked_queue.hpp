@@ -5,6 +5,9 @@
 #include <shared_mutex>
 #include <functional>
 #include <memory>
+#include <iostream>
+#include <string>
+
 
 template<typename T, typename Compare = std::less<T>>
 class LockedPriorityQueue {
@@ -14,55 +17,11 @@ public:
     void pop();
     T top() const;
     bool empty() const;
-    void print() const;
-    // friend std::ostream& operator<<(std::ostream& os, const LockedPriorityQueue<T, Compare>& queue);
+    // std::ostream& operator<<(std::ostream& os, LockedPriorityQueue<T, Compare> const & queue);
 private:
     mutable std::shared_mutex mutex_;
     std::priority_queue<T, std::vector<T>, Compare> heap_;
 };
-
-//we need this code here so that when the compiler runs into an object of the templated class with given T, it knows how to create the source code for that object. The linker does not do this
-template<typename T, typename Compare>
-LockedPriorityQueue<T, Compare>::LockedPriorityQueue() {}
-
-template<typename T, typename Compare>
-void LockedPriorityQueue<T, Compare>::push(const T& value)
-{
-    std::unique_lock<std::shared_mutex> lock(mutex_);
-    heap_.push(value);
-}
-
-template<typename T, typename Compare>
-void LockedPriorityQueue<T, Compare>::pop()
-{
-    std::unique_lock<std::shared_mutex> lock(mutex_);
-    heap_.pop();
-}
-
-template<typename T, typename Compare>
-T LockedPriorityQueue<T, Compare>::top() const
-{
-    std::shared_lock<std::shared_mutex> lock(mutex_);
-    return heap_.top();
-}
-
-template<typename T, typename Compare>
-bool LockedPriorityQueue<T, Compare>::empty() const
-{
-    std::unique_lock<std::shared_mutex> lock(mutex_);
-    return heap_.empty();
-}
-
-template<typename T, typename Compare>
-void LockedPriorityQueue<T, Compare>::print() const
-{
-    std::shared_lock<std::shared_mutex> lock(mutex_);
-    std::priority_queue<T, std::vector<T>, Compare> heapCopy = heap_;
-    while (!heapCopy.empty()) {
-        std::cout << (heapCopy.top()) << "\n";
-        heapCopy.pop();
-    }
-}
 
 #ifdef ENABLE_DOCTEST_IN_LIBRARY
 #include "doctest/doctest.h"
