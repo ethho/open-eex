@@ -1,34 +1,54 @@
-#include "matching_engine.hpp"
+#include "matching_engine.h"
+#include <sstream>
 
 
 MatchingEngine::MatchingEngine():
 buyOrders_(), sellOrders_(), orders_()
 {}
 
-void MatchingEngine::addOrder(const Ask& ask)
+void MatchingEngine::addOrder(const Order& order)
 {
-    buyOrders_.push(ask);
-    orders_.insert({ask.id(), ask});
+    if (order.isActive()) {
+        if (order.typeName() == "Bid") {
+            buyOrders_.push(order);
+        } else if (order.typeName() == "Ask") {
+            sellOrders_.push(order);
+        }
+    }
 }
 
-void MatchingEngine::addOrder(const Bid& bid)
+void MatchingEngine::cancelOrder(const Order& order)
 {
-    sellOrders_.push(bid);
-    orders_.insert({bid.id(), bid});
-}
-
-void MatchingEngine::cancelOrder(Order& order)
-{
-    //deactivate is a non const function, so we cannot have order has a const input here
     order.deactivate();
-    // TODO
+    // TODO: remove from heap
 }
 
-// void MatchingEngine::printOrderBook() const
-// {
-//     std::cout << "Buy Orders:" << "\n" << buyOrders_ << std::endl;
-//     std::cout << "Sell Orders:" << "\n" << buyOrders_ << std::endl;
-// }
+std::string MatchingEngine::printBuyOrders() const
+{
+    std::stringstream ss;
+    for (const auto& order : buyOrders_) {
+        ss << order << "\n";
+    }
+    return ss.str();
+}
+
+std::string MatchingEngine::printSellOrders() const
+{
+    std::stringstream ss;
+    for (const auto& order : sellOrders_) {
+        ss << order << "\n";
+    }
+    return ss.str();
+}
+
+ostream& operator<<(ostream& os, const MatchingEngine& me);
+{
+    std::sstream ss;
+    ss << "Buy Orders:" << "\n" << me.printBuyOrders();
+    ss << "Sell Orders:" << "\n" << me.printSellOrders();
+    os << ss.str();
+    return os;
+}
 
 
 
