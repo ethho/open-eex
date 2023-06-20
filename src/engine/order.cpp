@@ -1,4 +1,4 @@
-#include "order.h"
+#include "order.hpp"
 
 Order::Order():
 symbol_("AAPL"), price_(0.0), volume_(0.0), isActive_(true)
@@ -11,6 +11,11 @@ symbol_(symbol), price_(price), volume_(volume), isActive_(true)
 std::string Order::symbol() const
 {
     return symbol_;
+}
+
+int Order::id() const
+{
+    return id_;
 }
 
 double Order::price() const
@@ -58,3 +63,8 @@ bool Order::operator==(const Order& rhs) const
     return symbol_ == rhs.symbol_ && price_ == rhs.price_ && volume_ == rhs.volume_;
 }
 
+std::ostream& operator<<(std::ostream& s, const Order& o)
+{   
+    s << o.symbol_;
+    return s;
+}

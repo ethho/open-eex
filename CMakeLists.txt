@@ -37,12 +37,8 @@ find_lto(CXX)
 # --------------------------------------------------------------------------------
 #                         Locate files (change as needed).
 # --------------------------------------------------------------------------------
-set(SOURCES          # All .cpp files in src/
-    src/example.cpp
-    src/locked_queue.cpp
-    src/order.cpp
-    # src/matching_engine.cpp
-)
+file(GLOB SOURCES src/*/*)
+
 set(TESTFILES        # All .cpp files in tests/
     tests/main.cpp
 )
@@ -55,7 +51,14 @@ set(LIBRARY_NAME engine)  # Default name for the library built from src/*.cpp (c
 add_library(${LIBRARY_NAME} OBJECT ${SOURCES})
 
 # Lib needs its header files, and users of the library must also see these (PUBLIC). (No change needed)
-target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)  #We need any external header files in include
+#And all the header files in the subdirectories of include
+target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/example)
+target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/engine)
+target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/queue)
+target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/server)
+target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/client)
+target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/messages)
 
 # There's also (probably) doctests within the library, so we need to see this as well.
 target_link_libraries(${LIBRARY_NAME} PUBLIC doctest)

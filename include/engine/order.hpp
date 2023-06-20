@@ -1,11 +1,13 @@
 #pragma once
 #include <string>
+#include <iostream>
 
 class Order {
 public:
     Order();
     Order(const std::string& symbol, double price, double volume);
     std::string symbol() const;
+    int id() const;
     double price() const;
     double volume() const;
     bool isSell() const;
@@ -15,11 +17,13 @@ public:
     bool operator<(const Order& rhs) const;
     bool operator>(const Order& rhs) const;
     bool operator==(const Order& rhs) const;
+    friend std::ostream& operator<<(std::ostream& s, const Order& o);
 private:
     std::string symbol_;
     double price_;
     double volume_;
     bool isActive_;
+    int id_;
 };
 
 
