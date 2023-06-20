@@ -133,7 +133,7 @@ std::string Ask::typeName() const
     return "Ask";
 }
 
-std::ostream& operator<<(std::ostream& s, const Order& o)
+std::ostream& operator<<(std::ostream& os, const Order& order)
 {
     std::stringstream ss;
     ss << order.typeName();

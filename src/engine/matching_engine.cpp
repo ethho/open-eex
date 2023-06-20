@@ -5,14 +5,16 @@ MatchingEngine::MatchingEngine():
 buyOrders_(), sellOrders_(), orders_()
 {}
 
-void MatchingEngine::addOrder(const Order& order)
+void MatchingEngine::addOrder(const Ask& ask)
 {
-    if (order.isBuy()) {
-        buyOrders_.push(order);
-    } else if (order.isSell()) {
-        sellOrders_.push(order);
-    }
-    orders_.insert({order.id(), order});
+    buyOrders_.push(ask);
+    orders_.insert({ask.id(), ask});
+}
+
+void MatchingEngine::addOrder(const Bid& bid)
+{
+    sellOrders_.push(bid);
+    orders_.insert({bid.id(), bid});
 }
 
 void MatchingEngine::cancelOrder(Order& order)
@@ -22,11 +24,11 @@ void MatchingEngine::cancelOrder(Order& order)
     // TODO
 }
 
-void MatchingEngine::printOrderBook() const
-{
-    std::cout << "Buy Orders:" << "\n" << buyOrders_ << std::endl;
-    std::cout << "Sell Orders:" << "\n" << buyOrders_ << std::endl;
-}
+// void MatchingEngine::printOrderBook() const
+// {
+//     std::cout << "Buy Orders:" << "\n" << buyOrders_ << std::endl;
+//     std::cout << "Sell Orders:" << "\n" << buyOrders_ << std::endl;
+// }
 
 
 

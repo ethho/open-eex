@@ -15,6 +15,7 @@ public:
     T top() const;
     bool empty() const;
     void print() const;
+    // friend std::ostream& operator<<(std::ostream& os, const LockedPriorityQueue<T, Compare>& queue);
 private:
     mutable std::shared_mutex mutex_;
     std::priority_queue<T, std::vector<T>, Compare> heap_;

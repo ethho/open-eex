@@ -19,8 +19,10 @@ public:
     bool isActive() const;
     void deactivate();
     bool operator==(const Order& rhs) const;
+    bool operator!=(const Order& rhs) const;
     friend std::ostream& operator<<(std::ostream& s, const Order& o);
-private:
+    std::string typeName() const;
+protected:
     std::string symbol_;
     double price_;
     double volume_;
