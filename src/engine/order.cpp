@@ -1,4 +1,4 @@
-#include "order.h"
+#include "order.hpp"
 
 Order::Order()
 : symbol_("AAPL"), price_(0.0), volume_(0.0),
@@ -13,6 +13,11 @@ Order::Order(const std::string& symbol, double price, double volume)
 std::string Order::symbol() const
 {
     return symbol_;
+}
+
+int Order::id() const
+{
+    return id_;
 }
 
 double Order::price() const
@@ -128,17 +133,8 @@ std::string Ask::typeName() const
     return "Ask";
 }
 
-std::ostream& operator<<(std::ostream& os, Bid const & order) {
-    std::stringstream ss;
-    ss << order.typeName();
-    ss << "(symbol: " << order.symbol() << ", price: " << order.price() << ", volume: ";
-    ss << order.volume() << ", timePlaced: " << order.timePlaced().time_since_epoch().count();
-    ss << ", isActive: " << order.isActive() << ")";
-    os << ss.str();
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, Ask const & order) {
+std::ostream& operator<<(std::ostream& os, const Order& order)
+{
     std::stringstream ss;
     ss << order.typeName();
     ss << "(symbol: " << order.symbol() << ", price: " << order.price() << ", volume: ";

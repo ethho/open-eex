@@ -1,18 +1,19 @@
 #pragma once
-#include <locked_queue.h>
-#include <order.h>
+#include "locked_queue.hpp"
+#include "order.hpp"
 
 class MatchingEngine {
 public:
     MatchingEngine();
-    void addOrder(const Order& order);
-    void cancelOrder(const Order& order);
-    void printOrderBook() const;
-    std::string printBuyOrders() const;
-    std::string printSellOrders() const;
-protected:
-    LockedPriorityQueue<Order, std::greater<Order>> buyOrders_;
-    LockedPriorityQueue<Order, std::greater<Order>> sellOrders_;
+    void addOrder(const Bid& bid);
+    void addOrder(const Ask& ask);
+    void cancelOrder(Order& order);
+    // void printOrderBook() const;
+    // std::string printBuyOrders() const;
+    // std::string printSellOrders() const;
+private:
+    LockedPriorityQueue<Bid, std::greater<Bid>> buyOrders_;
+    LockedPriorityQueue<Ask, std::less<Ask>> sellOrders_;
     std::unordered_map<int, Order> orders_;
     // std::unordered_map<std::string, int> orderIds_;
     // std::unordered_map<std::string, int> orderCounts_;

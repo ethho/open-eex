@@ -4,6 +4,7 @@
 #include <chrono>
 
 using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
+#include <iostream>
 
 class Order {
 public:
@@ -11,6 +12,7 @@ public:
     Order(const std::string& symbol, double price, double volume);
     virtual ~Order() = default;
     std::string symbol() const;
+    int id() const;
     double price() const;
     double volume() const;
     TimePoint timePlaced() const;
@@ -18,6 +20,7 @@ public:
     void deactivate();
     bool operator==(const Order& rhs) const;
     bool operator!=(const Order& rhs) const;
+    friend std::ostream& operator<<(std::ostream& s, const Order& o);
     std::string typeName() const;
 protected:
     std::string symbol_;
@@ -25,6 +28,7 @@ protected:
     double volume_;
     TimePoint timePlaced_;
     bool isActive_;
+    int id_;
 };
 
 class Bid: public Order {
@@ -57,10 +61,6 @@ public:
     bool operator>(const Ask& rhs) const;
     std::string typeName() const;
 };
-
-std::ostream& operator<<(std::ostream& os, Ask const & order);
-
-std::ostream& operator<<(std::ostream& os, Bid const & order);
 
 
 #ifdef ENABLE_DOCTEST_IN_LIBRARY
