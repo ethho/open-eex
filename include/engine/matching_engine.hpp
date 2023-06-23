@@ -35,6 +35,7 @@ TEST_CASE("test matching engine initialization")
     MatchingEngine me;
     std::stringstream ss;
     ss << me;
-    CHECK(ss.str().find("Buy Orders:") != std::string::npos);
+    //This unit test has changed
+    CHECK(ss.str().find("All orders:") != std::string::npos);
 }
 #endif

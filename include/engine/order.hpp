@@ -21,7 +21,7 @@ public:
     bool operator==(const Order& rhs) const;
     bool operator!=(const Order& rhs) const;
     friend std::ostream& operator<<(std::ostream& s, const Order& o);
-    std::string typeName() const;
+    virtual std::string typeName() const;
 protected:
     std::string symbol_;
     double price_;
@@ -36,7 +36,7 @@ public:
     Bid();
     Bid(const std::string& symbol, double price, double volume);
     Bid(const Order& order);
-    virtual ~Bid() = default;
+    ~Bid() = default;
     /*
      * Comparator overloads sort by price-time priority.
      * If order1 has a better price than order2, then order1 is given priority
@@ -52,6 +52,7 @@ public:
     Ask();
     Ask(const std::string& symbol, double price, double volume);
     Ask(const Order& order);
+    ~Ask() = default;
     /*
      * Comparator overloads sort by price-time priority.
      * If order1 has a better price than order2, then order1 is given priority

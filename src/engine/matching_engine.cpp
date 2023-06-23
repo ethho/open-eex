@@ -54,7 +54,7 @@ std::string MatchingEngine::printOrders() const
 std::ostream& operator<<(std::ostream& os, const MatchingEngine& me)
 {
     std::stringstream ss;
-    ss << "All orders: " << me.printOrders();
+    ss << "All orders: \n" << me.printOrders();
     //ss << "Buy Orders:" << "\n" << me.printBuyOrders();
     //ss << "Sell Orders:" << "\n" << me.printSellOrders();
     os << ss.str();
