@@ -1,8 +1,8 @@
 #include "messages.hpp"
 
 void tokenize(std::vector<std::string>& tokens, std::string command){
-    //raw form of delimiter
-    std::regex re(R"(\r\n)");
+    //Use delimiter ;; so that users do not get confused
+    std::regex re(";;");
 
     //i don't like iterators
     std::sregex_token_iterator start(command.begin(),command.end(), re,-1);
