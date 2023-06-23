@@ -17,10 +17,6 @@ RunTimeScheduler::RunTimeScheduler(int n_threads){
     return;
 }
 
-bool RunTimeScheduler::compare_func(void* w1, void* w2){
-    return 1;
-}
-
 RunTimeScheduler::~RunTimeScheduler(){
     int i;
     //atomically set end to true

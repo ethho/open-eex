@@ -16,8 +16,6 @@ private:
         std::function<void()> func;
     };
 
-    bool compare_func(void* w1, void* w2);
-
     std::atomic<bool> end;
     int n_threads;
     int n_tasks;

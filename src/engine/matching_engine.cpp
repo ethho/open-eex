@@ -1,4 +1,4 @@
-#include "matching_engine.h"
+#include "matching_engine.hpp"
 #include <sstream>
 
 
@@ -14,38 +14,49 @@ void MatchingEngine::addOrder(const Order& order)
         } else if (order.typeName() == "Ask") {
             sellOrders_.push(order);
         }
+        this->all_orders_.push_back(order);
     }
 }
 
-void MatchingEngine::cancelOrder(const Order& order)
+void MatchingEngine::cancelOrder(Order& order)
 {
     order.deactivate();
     // TODO: remove from heap
 }
 
-std::string MatchingEngine::printBuyOrders() const
+// std::string MatchingEngine::printBuyOrders() const
+// {
+//     std::stringstream ss;
+//     for (const auto& order : buyOrders_) {
+//         ss << order << "\n";
+//     }
+//     return ss.str();
+// }
+
+// std::string MatchingEngine::printSellOrders() const
+// {
+//     std::stringstream ss;
+//     for (const auto& order : sellOrders_) {
+//         ss << order << "\n";
+//     }
+//     return ss.str();
+// }
+
+std::string MatchingEngine::printOrders() const
 {
     std::stringstream ss;
-    for (const auto& order : buyOrders_) {
-        ss << order << "\n";
+    for (const Order& o : this->all_orders_){
+        ss << o << "\n";
     }
     return ss.str();
 }
 
-std::string MatchingEngine::printSellOrders() const
+std::ostream& operator<<(std::ostream& os, const MatchingEngine& me)
 {
     std::stringstream ss;
-    for (const auto& order : sellOrders_) {
-        ss << order << "\n";
-    }
-    return ss.str();
-}
-
-ostream& operator<<(ostream& os, const MatchingEngine& me);
-{
-    std::sstream ss;
-    ss << "Buy Orders:" << "\n" << me.printBuyOrders();
-    ss << "Sell Orders:" << "\n" << me.printSellOrders();
+    ss << "All orders: " << me.printOrders();
+    //ss << "Buy Orders:" << "\n" << me.printBuyOrders();
+    //ss << "Sell Orders:" << "\n" << me.printSellOrders();
     os << ss.str();
     return os;
 }
