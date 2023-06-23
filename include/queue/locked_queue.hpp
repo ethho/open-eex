@@ -54,6 +54,20 @@ bool LockedPriorityQueue<T, Compare>::empty() const
     return heap_.empty();
 }
 
+// template<typename T, typename Compare>
+// std::ostream& LockedPriorityQueue<T, Compare>::operator<<(std::ostream& os, const LockedPriorityQueue<T, Compare>& queue)
+// {
+//     std::shared_lock<std::shared_mutex> lock(mutex_);
+//     std::priority_queue<T, std::vector<T>, Compare> heapCopy = heap_;
+//     os << "LockedPriorityQueue(";
+//     while (!heapCopy.empty()) {
+//         os << heapCopy.top() << ", ";
+//         heapCopy.pop();
+//     }
+//     os << ")";
+//     return os;
+// }
+
 #ifdef ENABLE_DOCTEST_IN_LIBRARY
 #include "doctest/doctest.h"
 TEST_CASE("test the locked queue int template")
