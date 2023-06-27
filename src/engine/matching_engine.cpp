@@ -18,6 +18,30 @@ void MatchingEngine::addOrder(const Order& order)
     }
 }
 
+void MatchingEngine::addOrder(const Bid& order)
+{
+    if (order.isActive()) {
+        if (order.typeName() == "Bid") {
+            buyOrders_.push(order);
+        } else if (order.typeName() == "Ask") {
+            sellOrders_.push(order);
+        }
+        this->all_orders_.push_back(order);
+    }
+}
+
+void MatchingEngine::addOrder(const Ask& order)
+{
+    if (order.isActive()) {
+        if (order.typeName() == "Bid") {
+            buyOrders_.push(order);
+        } else if (order.typeName() == "Ask") {
+            sellOrders_.push(order);
+        }
+        this->all_orders_.push_back(order);
+    }
+}
+
 void MatchingEngine::cancelOrder(Order& order)
 {
     order.deactivate();

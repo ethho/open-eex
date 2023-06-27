@@ -1,5 +1,19 @@
 #include "server.hpp"
 
+Server::Server(): m(), rs(2) {}
+
+void Server::add_order(const Order& o){
+    this->m.addOrder(o);
+}
+
+void Server::add_bid(const Bid& b){
+    this->m.addOrder(b);
+}
+
+void Server::add_ask(const Ask& a){
+    this->m.addOrder(a);
+}
+
 void Server::create_server(const char* port_p, int buffer_size, int backlog){
 
     //using the struct key word because the header files are native to C 
@@ -97,6 +111,18 @@ void Server::create_server(const char* port_p, int buffer_size, int backlog){
             
             handle_client(c);
         }
+    }
+}
+
+void Server::create_order(OrderPacket* o){
+    if(o->true_if_bid){
+        Bid b(std::string(o->ticker), o->price_per_share, o->num_shares);
+        this->rs.launch_task(&Server::add_bid, this, b);
+        return;
+    }else{
+        Ask a(std::string(o->ticker), o->price_per_share, o->num_shares);
+        this->rs.launch_task(&Server::add_ask, this, a);
+        return;
     }
 }
 

@@ -29,8 +29,8 @@ struct OrderPacket{
     */
     char* ticker;
     bool true_if_bid;
-    int num_shares;
-    float price_per_share;
+    double num_shares;
+    double price_per_share;
 };
 
 void tokenize(std::vector<std::string>& tokens, std::string command);

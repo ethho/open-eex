@@ -62,8 +62,8 @@ OrderPacket* create_order_from_command(std::string order_command){
     std::strcpy(new_packet->ticker,tokens[0].c_str());
     
     new_packet->true_if_bid = tokens[1] == std::string("BID");
-    new_packet->price_per_share = std::stof(tokens[2]);
-    new_packet->num_shares = std::stoi(tokens[3]);
+    new_packet->price_per_share = std::stod(tokens[2]);
+    new_packet->num_shares = std::stod(tokens[3]);
     print_order_packet(new_packet);
     return new_packet;
 }

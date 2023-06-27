@@ -5,7 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include <atomic>
-#include "concurrent_queue.hpp"
+#include "scheduler_queue.hpp"
 
 class RunTimeScheduler{
 private:
