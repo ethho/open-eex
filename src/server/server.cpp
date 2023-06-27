@@ -9,7 +9,7 @@ void Server::create_server(const char* port_p, int buffer_size, int backlog){
     struct addrinfo* res;   //head of list returned by getaddrinfo()
 
     struct sockaddr_storage client_addr;    //placeholder for client_addr
-    socklen_t addr_size;                    //size of client addr placeholder
+    socklen_t addr_size = sizeof (struct sockaddr_storage);                    //size of client addr placeholder
 
     int active_socket_fd;   //file descriptor for active socket
 

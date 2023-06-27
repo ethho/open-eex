@@ -31,6 +31,7 @@ public:
     
     // This function will end the server and close all connections
     void destroy_server(); 
+    friend class Client;
 };
 
 void handle_client(Client *c);
