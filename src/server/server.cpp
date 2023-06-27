@@ -104,26 +104,43 @@ void handle_client(Client* c){
     std::printf("Reached here, client hostname = %s\n", c->get_client_hostname_ptr());
     int n_bytes;
     int n;
+    int msg_size = 0;
+    //reset the buffer to 0 
+    std::memset(c->client_buffer,0,c->buffer_size);
+
     while(true){
         //infinite loop to handle receiving messages here
 
-        //reset the buffer to 0 
-        std::memset(c->client_buffer,0,c->buffer_size);
-
         //receive bytes from the client
-        n_bytes = recv(c->active_socket_fd, c->client_buffer, c->buffer_size,0);
+        n_bytes = recv(c->active_socket_fd, c->client_buffer + msg_size, c->buffer_size,0);
         if(n_bytes <= 0){
             return;
         }
-        std::string buf_contents(c->client_buffer, c->client_buffer + n_bytes);
+        msg_size += n_bytes;
+        std::string buf_contents(c->client_buffer, c->client_buffer + msg_size);
 
         std::vector<std::string> tokens = generate_tokens(buf_contents);
-
+        
         n = tokens.size();
         for(int i=0;i<n;i++){
-           std::cout << tokens[i] << " ";
+           std::cout << tokens[i];
         }
-        std::cout << '\n';
+
+        if(n > 0){
+            //We got tokens, only need to keep the last one
+            std::memset(c->client_buffer, 0, c->buffer_size);
+            if(!(msg_size > 1 && buf_contents[msg_size] == ';' && buf_contents[msg_size-1] == ';')){
+                //There is some leftover text left in the tokens which is not finished with ;;, so retain that
+                std::memcpy(c->client_buffer, tokens[n-1].c_str(), tokens[n-1].size());
+                //And don't use that token
+                n--;
+            }
+        }
+
+        for(int i=0;i<n;i++){
+           create_order_from_command(tokens[i]);
+        }
+
     }
     return;
 }
