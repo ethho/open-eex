@@ -3,15 +3,15 @@
 Server::Server(): m(), rs(2) {}
 
 void Server::add_order(const Order& o){
-    this->m.addOrder(o);
+    this->m[o.symbol()].addOrder(o);
 }
 
 void Server::add_bid(const Bid& b){
-    this->m.addOrder(b);
+    this->m[b.symbol()].addOrder(b);
 }
 
 void Server::add_ask(const Ask& a){
-    this->m.addOrder(a);
+    this->m[a.symbol()].addOrder(a);
 }
 
 void Server::create_server(const char* port_p, int buffer_size, int backlog){

@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <cerrno>
 #include <thread>
-
+#include <unordered_map>
 //os related libraries
 #include <unistd.h>
 
@@ -25,7 +25,7 @@ private:
     int backlog;
     int buffer_size; //use the same buffer size for all buffers
     int passive_socket_fd; //file descriptor for passive socket which listens for connections 
-    MatchingEngine m;
+    std::unordered_map<std::string, MatchingEngine> m;
     RunTimeScheduler rs;
 
     //This function takes an OrderPacket and puts an order into the queue
