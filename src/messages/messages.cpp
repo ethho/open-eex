@@ -1,8 +1,10 @@
 #include "messages.hpp"
 
+const char* delim = ";;";
+
 void tokenize(std::vector<std::string>& tokens, std::string command){
     //Use delimiter ;; so that users do not get confused
-    std::regex re(";;");
+    std::regex re(delim);
 
     //i don't like iterators
     std::sregex_token_iterator start(command.begin(),command.end(), re,-1);
@@ -23,9 +25,11 @@ std::vector<std::string> generate_tokens(std::string command){
     std::vector<std::string> tokens;
 
     //if the delimiter is not present, then do not do anything
-    if(command.find(";;") == std::string::npos){
+    
+    if(command.find(delim) == std::string::npos){
         return tokens;
     }
+    
     //otherwise, you're free to tokenize
     if(command.size() > 0){
         tokenize(tokens,command);
@@ -69,6 +73,35 @@ OrderPacket* create_order_from_command(std::string order_command){
 }
 
 void print_order_packet(OrderPacket* o){
-    std::cout << o->ticker << " " << o->true_if_bid << " " << o->price_per_share << " " << o->num_shares << "\n";
+    std::cout << "ORDER = " << o->ticker << " " << o->true_if_bid << " " << o->price_per_share << " " << o->num_shares << "\n";
     return;
+}
+
+
+void eex_log(char *fmt, ...)
+{
+    va_list argptr;
+
+    va_start(argptr, fmt);
+
+    flockfile(stdout);
+    std::vprintf(fmt, argptr);
+    funlockfile(stdout);
+    fflush(stdout);
+
+    va_end(argptr);
+}
+
+void eex_log(const char *fmt, ...)
+{
+    va_list argptr;
+
+    va_start(argptr, fmt);
+
+    flockfile(stdout);
+    std::vprintf(fmt, argptr);
+    funlockfile(stdout);
+    fflush(stdout);
+
+    va_end(argptr);
 }

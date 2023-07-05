@@ -1,6 +1,6 @@
 #include "server.hpp"
 
-Server::Server(): m(), rs(2) {}
+Server::Server(): rs(2) {}
 
 void Server::add_order(const Order& o){
     this->m[o.symbol()].addOrder(o);
@@ -109,7 +109,7 @@ void Server::create_server(const char* port_p, int buffer_size, int backlog){
                 continue;
             }
             
-            handle_client(c);
+            handle_client(c,this);
         }
     }
 }
@@ -120,19 +120,21 @@ void Server::create_order(OrderPacket* o){
         this->rs.launch_task(&Server::add_bid, this, b);
         return;
     }else{
-        Ask a(std::string(o->ticker), o->price_per_share, o->num_shares);
+        //Volume must be negative for Asks
+        Ask a(std::string(o->ticker), o->price_per_share, -o->num_shares);
         this->rs.launch_task(&Server::add_ask, this, a);
         return;
     }
 }
 
-void handle_client(Client* c){
+void handle_client(Client* c, Server *s){
     std::printf("Reached here, client hostname = %s\n", c->get_client_hostname_ptr());
     int n_bytes;
     int n;
     int msg_size = 0;
     //reset the buffer to 0 
     std::memset(c->client_buffer,0,c->buffer_size);
+    OrderPacket *o;
 
     while(true){
         //infinite loop to handle receiving messages here
@@ -148,6 +150,8 @@ void handle_client(Client* c){
         std::vector<std::string> tokens = generate_tokens(buf_contents);
         
         n = tokens.size();
+        std::cout <<"Printing tokens\n";
+        std::cout << n << std::endl;
         for(int i=0;i<n;i++){
            std::cout << tokens[i];
         }
@@ -157,14 +161,17 @@ void handle_client(Client* c){
             std::memset(c->client_buffer, 0, c->buffer_size);
             if(!(msg_size > 1 && buf_contents[msg_size] == ';' && buf_contents[msg_size-1] == ';')){
                 //There is some leftover text left in the tokens which is not finished with ;;, so retain that
+                //Warning: telnet may append some garbage to the text
                 std::memcpy(c->client_buffer, tokens[n-1].c_str(), tokens[n-1].size());
+            
                 //And don't use that token
                 n--;
             }
         }
 
         for(int i=0;i<n;i++){
-           create_order_from_command(tokens[i]);
+           o = create_order_from_command(tokens[i]);
+           s->create_order(o);
         }
 
     }

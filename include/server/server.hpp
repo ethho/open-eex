@@ -45,6 +45,6 @@ public:
 
 
     friend class Client;
+    friend void handle_client(Client* c, Server* s);
 };
 
-void handle_client(Client *c);

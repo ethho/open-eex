@@ -6,6 +6,8 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <cstdarg>
+#include <cstdio>
 
 //os related libraries
 #include <unistd.h>
@@ -40,3 +42,7 @@ std::vector<std::string> generate_tokens(std::string command);
 OrderPacket* create_order_from_command(std::string order_command);
 
 void print_order_packet(OrderPacket* o);
+
+void eex_log(char *fmt, ...);
+
+void eex_log(const char *fmt, ...);
