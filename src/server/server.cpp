@@ -167,7 +167,7 @@ void handle_client(Client* c, Server *s){
                 s->create_order(o);
             }
         }
-
     }
+    
     return;
 }

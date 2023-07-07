@@ -19,9 +19,10 @@ def makeform(root, fields):
    return entries
 
 class ClientWindow:
-    def __init__(self, title = "Open EEX", port = 6667):
+    def __init__(self, title = "Open EEX", port = 6668):
         self.port = port
         self.fields = ("Ticker", "Bid or Ask", "Price per share", "Volume")
+        self.client = self.create_connection()
         self.window = tk.Tk()
         self.window_title = title
         self.window.resizable(width = False, height = False)
@@ -36,25 +37,25 @@ class ClientWindow:
         b2 = tk.Button(self.window, text = 'Exit',
             command=(lambda e = ents: self.disconnect()))
         b2.pack(side = tk.LEFT, padx = 5, pady = 5)
-        
-        
         self.window.mainloop()
                 
     def create_connection(self):
         tries = 3
         while tries > 0:
             try:
-                self.client = telnetlib.Telnet("localhost", str(self.port), 1)
+                self.client = telnetlib.Telnet("localhost", str(self.port))
                 #self.client.set_debuglevel(100)
-                self.client.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
                 break
-            except Exception:
+            except Exception as e:
+                print(e)
                 tries -= 1
                 time.sleep(0.1)
 
+        return self.client
+
     def disconnect(self):
         print("Over")
-        #self.client.close()
+        self.client.close()
         self.window.quit()
     
     def process_order(self, entries):
@@ -69,9 +70,8 @@ class ClientWindow:
         
         send_str = f"{ticker}:{odr_str}:{price_per_share}:{vol};;"
         
-        #self.create_connection()
         print(send_str)
-        #self.client.write(send_str)
+        self.client.write(send_str.encode("ascii"))
         
     def get_message(self):
         msg = self.client.read_until(str.encode("\r\n"), timeout=self.msg_timeout)
