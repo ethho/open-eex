@@ -150,28 +150,22 @@ void handle_client(Client* c, Server *s){
         std::vector<std::string> tokens = generate_tokens(buf_contents);
         
         n = tokens.size();
-        std::cout <<"Printing tokens\n";
+        std::cout <<"Printing tokens:\n";
         std::cout << n << std::endl;
         for(int i=0;i<n;i++){
-           std::cout << tokens[i];
+           std::cout << tokens[i] << " ";
         }
-
+        std::cout << "\nDone printing tokens" << std::endl;
         if(n > 0){
-            //We got tokens, only need to keep the last one
+            //We got tokens, only need to keep the last one, get rid of the rest
             std::memset(c->client_buffer, 0, c->buffer_size);
-            if(!(msg_size > 1 && buf_contents[msg_size] == ';' && buf_contents[msg_size-1] == ';')){
-                //There is some leftover text left in the tokens which is not finished with ;;, so retain that
-                //Warning: telnet may append some garbage to the text
-                std::memcpy(c->client_buffer, tokens[n-1].c_str(), tokens[n-1].size());
-            
-                //And don't use that token
-                n--;
+        }else if(n > 1){
+            std::cout << "More tokens received than we should have!" << std::endl;
+        }else{
+            for(int i=0;i<n;i++){
+                o = create_order_from_command(tokens[i]);
+                s->create_order(o);
             }
-        }
-
-        for(int i=0;i<n;i++){
-           o = create_order_from_command(tokens[i]);
-           s->create_order(o);
         }
 
     }

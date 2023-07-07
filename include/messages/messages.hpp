@@ -37,6 +37,8 @@ struct OrderPacket{
 
 void tokenize(std::vector<std::string>& tokens, std::string command);
 
+void tokenize(std::vector<std::string>& tokens, char* command);
+
 std::vector<std::string> generate_tokens(std::string command);
 
 OrderPacket* create_order_from_command(std::string order_command);

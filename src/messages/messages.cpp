@@ -1,9 +1,9 @@
 #include "messages.hpp"
 
+//Use delimiter ;; so that users do not get confused
 const char* delim = ";;";
 
 void tokenize(std::vector<std::string>& tokens, std::string command){
-    //Use delimiter ;; so that users do not get confused
     std::regex re(delim);
 
     //i don't like iterators
@@ -17,7 +17,16 @@ void tokenize(std::vector<std::string>& tokens, std::string command){
 
     // Additional check to remove empty strings
     tokens.erase(std::remove_if(tokens.begin(),tokens.end(), [](std::string const& s) {return s.size() == 0;}),tokens.end());
+    return;
+}
+
+void tokenize(std::vector<std::string>& tokens, char* command){
+    char *token;
+    char *rest = command;
  
+    while ((token = strtok_r(rest, delim, &rest))){
+        tokens.push_back(std::string(token));
+    }
     return;
 }
 
@@ -27,6 +36,7 @@ std::vector<std::string> generate_tokens(std::string command){
     //if the delimiter is not present, then do not do anything
     
     if(command.find(delim) == std::string::npos){
+        std::cout <<"Didn't find\n";
         return tokens;
     }
     
