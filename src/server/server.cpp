@@ -150,8 +150,8 @@ void handle_client(Client* c, Server *s){
         std::vector<std::string> tokens = generate_tokens(buf_contents);
         
         n = tokens.size();
+        std::cout << "Number of tokens = " << n << std::endl;
         std::cout <<"Printing tokens:\n";
-        std::cout << n << std::endl;
         for(int i=0;i<n;i++){
            std::cout << tokens[i] << " ";
         }
@@ -159,14 +159,26 @@ void handle_client(Client* c, Server *s){
         if(n > 0){
             //We got tokens, only need to keep the last one, get rid of the rest
             std::memset(c->client_buffer, 0, c->buffer_size);
-        }else if(n > 1){
-            std::cout << "More tokens received than we should have!" << std::endl;
-        }else{
-            for(int i=0;i<n;i++){
-                o = create_order_from_command(tokens[i]);
-                s->create_order(o);
+
+
+            //If there is some stuff after the \r\n, then retain that, we need it. Don't use that last token
+            if(!(msg_size > 2 && buf_contents[msg_size-2] == '\r' && buf_contents[msg_size-1] == '\n')){
+                std::printf("Oh no, last two characters are %d %d\n", buf_contents[msg_size-2], buf_contents[msg_size-1]);
+                msg_size = tokens[n-1].size();
+                std::memcpy(c->client_buffer, tokens[n-1].c_str(), tokens[n-1].size());
+                n--;
+            }else{
+                msg_size = 0;   //adjust the contents of the client buffer accordingly
             }
+        }else{
+            std::printf("Size of buffer = %d and contents of buffer are: %s\n", msg_size, c->client_buffer);
         }
+        
+        for(int i=0;i<n;i++){
+            o = create_order_from_command(tokens[i]);
+            s->create_order(o);
+        }
+    
     }
     
     return;

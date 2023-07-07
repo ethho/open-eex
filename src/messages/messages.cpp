@@ -1,7 +1,7 @@
 #include "messages.hpp"
 
 //Use delimiter ;; so that users do not get confused
-const char* delim = ";;";
+const char* delim = "\r\n";
 
 void tokenize(std::vector<std::string>& tokens, std::string command){
     std::regex re(delim);
@@ -42,7 +42,7 @@ std::vector<std::string> generate_tokens(std::string command){
     
     //otherwise, you're free to tokenize
     if(command.size() > 0){
-        tokenize(tokens,command);
+        tokenize(tokens,command.c_str());
     }
 
     return tokens;
