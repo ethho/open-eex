@@ -44,7 +44,6 @@ void RunTimeScheduler::worker_func(int id){
                 w = static_cast<WorkerArgs* > (this->q.extract_top());
                 std::printf("Thread %d took task!\n", id);
                 ((w->func))();
-
             }
         }
     }

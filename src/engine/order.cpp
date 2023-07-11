@@ -78,7 +78,6 @@ bool compatible_orders(Bid& b, Ask& a){
     float vol_rem = std::abs(b.volume() + a.volume());
     b.update_volume(vol_rem);
     a.update_volume(vol_rem);
-    std::cout << "Volume of " << a << " remaining is " << a.volume() << std::endl;
     return true;
 }
 

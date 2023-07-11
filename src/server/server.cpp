@@ -132,12 +132,23 @@ void Server::create_order(OrderPacket* o, Client* c){
     }
 }
 
+void send_all(int sockfd, char* buf_ptr, int length, int flags){
+    int n_bytes=0;
+    int bytes_sent;
+    while(n_bytes < length){
+        bytes_sent = send(sockfd,buf_ptr, length, flags);
+        n_bytes = n_bytes + bytes_sent;
+        buf_ptr = buf_ptr + bytes_sent;
+    }
+    return;
+}
+
 void Server::run_matching_engine(std::string ticker){
     Bid bid_order;
     Ask ask_order;
     MatchingEngine *eng = &(this->m[ticker]);
-    //Client* bidder_ptr;
-    //Client* asker_ptr;
+    Client* bidder_ptr;
+    Client* asker_ptr;
     
     //if there are both buy and sell orders only then can we check for a match 
     std::printf("Running Orders\n");
@@ -148,23 +159,26 @@ void Server::run_matching_engine(std::string ticker){
         
         //If orders are compatible, this function will also modify the two orders, calling by reference
         if(compatible_orders(bid_order,ask_order)){
-            std::printf("Match Made!\n");
+            
             //Send the bid to the bidder's client and the ask to the asker's client
-            //bidder_ptr = bid_order.get_client_ptr();
-            //asker_ptr = ask_order.get_client_ptr();
+            bidder_ptr = bid_order.get_client_ptr();
+            asker_ptr = ask_order.get_client_ptr();
 
             //prepare the buffers for sending
-            //std::sprintf(bidder_ptr->server_buffer,"%s:%s:%f:%f",ask_order.symbol().c_str(),ask_order.typeName().c_str(), ask_order.price(), ask_order.volume()); 
-            //std::sprintf(asker_ptr->server_buffer,"%s:%s:%f:%f",bid_order.symbol().c_str(),bid_order.typeName().c_str(), bid_order.price(), bid_order.volume());
+            std::sprintf(asker_ptr->server_buffer,"%s:ASK:%f:%f\r\n",ticker.c_str(),ask_order.price(), ask_order.volume()); 
+            std::sprintf(bidder_ptr->server_buffer,"%s:BID:%f:%f\r\n",ticker.c_str(),bid_order.price(), bid_order.volume());
+
+            std::printf("Match Made! %s%s\n",asker_ptr->server_buffer,bidder_ptr->server_buffer);
 
             //now send the two buffers and the client side is responsible for updating the portfolios
-        }   
-        
+            send_all(bidder_ptr->active_socket_fd, bidder_ptr->server_buffer, strlen(bidder_ptr->server_buffer), 0);
+            send_all(asker_ptr->active_socket_fd, asker_ptr->server_buffer, strlen(asker_ptr->server_buffer), 0);    
+        }  
     }
 }
 
 void Server::run_matching_engine(){
-    //MatchingEngine *eng;    //Use a pointer because the = operator for MatchingEngine has been deleted
+    //MatchingEngine *eng;    //Use a pointer because the implicit = operator for MatchingEngine has been deleted
     std::string ticker_name;
     Bid bid_order;
     Ask ask_order;

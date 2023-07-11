@@ -51,3 +51,4 @@ public:
     friend void handle_client(Client* c, Server* s);
 };
 
+void send_all(int sockfd, char* buf_ptr, int length, int flags);
