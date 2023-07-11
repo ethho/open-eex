@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <cerrno>
 #include <thread>
-
+#include <unordered_map>
 //os related libraries
 #include <unistd.h>
 
@@ -15,7 +15,8 @@
 
 #include "client.hpp"
 #include "messages.hpp"
-
+#include "matching_engine.hpp"
+#include "scheduler.hpp"
 
 class Server{
 private:
@@ -24,13 +25,30 @@ private:
     int backlog;
     int buffer_size; //use the same buffer size for all buffers
     int passive_socket_fd; //file descriptor for passive socket which listens for connections 
+    std::unordered_map<std::string, MatchingEngine> m;
+    RunTimeScheduler rs;
+
+    //This function takes an OrderPacket and puts an order into the queue
+    void create_order(OrderPacket* o, Client* c); 
+
+    void add_order(const Order& o);
+    void add_bid(const Bid& b);
+    void add_ask(const Ask& a);
+
+    void run_matching_engine(); //this function is redundant
+    void run_matching_engine(std::string ticker);
 
 public:
+    Server();
     // This function sets up the socket stuff and listens for incoming connections
     void create_server(const char* port_p, int buffer_size = 1024, int backlog = 10); 
     
     // This function will end the server and close all connections
     void destroy_server(); 
+
+
+    friend class Client;
+    friend void handle_client(Client* c, Server* s);
 };
 
-void handle_client(Client *c);
+void send_all(int sockfd, char* buf_ptr, int length, int flags);
