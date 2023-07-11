@@ -166,13 +166,16 @@ void Server::run_matching_engine(std::string ticker){
 
             //prepare the buffers for sending
             std::sprintf(asker_ptr->server_buffer,"%s:ASK:%f:%f\r\n",ticker.c_str(),ask_order.price(), ask_order.volume()); 
+            send_all(asker_ptr->active_socket_fd, asker_ptr->server_buffer, strlen(asker_ptr->server_buffer), 0);  
+
             std::sprintf(bidder_ptr->server_buffer,"%s:BID:%f:%f\r\n",ticker.c_str(),bid_order.price(), bid_order.volume());
+            send_all(bidder_ptr->active_socket_fd, bidder_ptr->server_buffer, strlen(bidder_ptr->server_buffer), 0);
 
             std::printf("Match Made! %s%s\n",asker_ptr->server_buffer,bidder_ptr->server_buffer);
 
             //now send the two buffers and the client side is responsible for updating the portfolios
-            send_all(bidder_ptr->active_socket_fd, bidder_ptr->server_buffer, strlen(bidder_ptr->server_buffer), 0);
-            send_all(asker_ptr->active_socket_fd, asker_ptr->server_buffer, strlen(asker_ptr->server_buffer), 0);    
+            
+              
         }  
     }
 }
