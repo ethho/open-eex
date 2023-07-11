@@ -9,23 +9,27 @@ buyOrders_(), sellOrders_(), orders_()
 void MatchingEngine::addOrder(const Order& order)
 {
     if (order.isActive()) {
-        if (order.typeName() == "Bid") {
+        if (order.typeName() == std::string("Bid")) {
             buyOrders_.push(order);
-        } else if (order.typeName() == "Ask") {
+        } else if (order.typeName() == std::string("Ask")) {
             sellOrders_.push(order);
         }
         this->all_orders_.push_back(order);
     }
 }
 
+Bid MatchingEngine::top_buy(){
+    return this->buyOrders_.top();   
+}
+
+Ask MatchingEngine::top_sell(){
+    return this->sellOrders_.top();
+}
+
 void MatchingEngine::addOrder(const Bid& order)
 {
     if (order.isActive()) {
-        if (order.typeName() == "Bid") {
-            buyOrders_.push(order);
-        } else if (order.typeName() == "Ask") {
-            sellOrders_.push(order);
-        }
+        buyOrders_.push(order);
         this->all_orders_.push_back(order);
     }
 }
@@ -33,11 +37,7 @@ void MatchingEngine::addOrder(const Bid& order)
 void MatchingEngine::addOrder(const Ask& order)
 {
     if (order.isActive()) {
-        if (order.typeName() == "Bid") {
-            buyOrders_.push(order);
-        } else if (order.typeName() == "Ask") {
-            sellOrders_.push(order);
-        }
+        sellOrders_.push(order);
         this->all_orders_.push_back(order);
     }
 }
@@ -46,6 +46,19 @@ void MatchingEngine::cancelOrder(Order& order)
 {
     order.deactivate();
     // TODO: remove from heap
+}
+
+bool MatchingEngine::any_buy_orders(){
+    return !(this->buyOrders_.empty());
+}
+
+bool MatchingEngine::any_sell_orders(){
+    return !(this->sellOrders_.empty());
+}
+
+bool MatchingEngine::any_orders(){
+    std::cout << this->sellOrders_.empty() << " " << this->buyOrders_.empty() << std::endl;
+    return !(this->sellOrders_.empty() || this->buyOrders_.empty());
 }
 
 // std::string MatchingEngine::printBuyOrders() const

@@ -4,14 +4,17 @@ Server::Server(): rs(2) {}
 
 void Server::add_order(const Order& o){
     this->m[o.symbol()].addOrder(o);
+    this->run_matching_engine(o.symbol());
 }
 
 void Server::add_bid(const Bid& b){
     this->m[b.symbol()].addOrder(b);
+    this->run_matching_engine(b.symbol());
 }
 
 void Server::add_ask(const Ask& a){
     this->m[a.symbol()].addOrder(a);
+    this->run_matching_engine(a.symbol());
 }
 
 void Server::create_server(const char* port_p, int buffer_size, int backlog){
@@ -108,22 +111,93 @@ void Server::create_server(const char* port_p, int buffer_size, int backlog){
                 std::printf("Could not get client name, skipping client\n");
                 continue;
             }
-            
+
             handle_client(c,this);
         }
     }
 }
 
-void Server::create_order(OrderPacket* o){
+void Server::create_order(OrderPacket* o, Client* c){
     if(o->true_if_bid){
         Bid b(std::string(o->ticker), o->price_per_share, o->num_shares);
+        b.set_client_ptr(c);
         this->rs.launch_task(&Server::add_bid, this, b);
         return;
     }else{
         //Volume must be negative for Asks
         Ask a(std::string(o->ticker), o->price_per_share, -o->num_shares);
+        a.set_client_ptr(c);
         this->rs.launch_task(&Server::add_ask, this, a);
         return;
+    }
+}
+
+void Server::run_matching_engine(std::string ticker){
+    Bid bid_order;
+    Ask ask_order;
+    MatchingEngine *eng = &(this->m[ticker]);
+    //Client* bidder_ptr;
+    //Client* asker_ptr;
+    
+    //if there are both buy and sell orders only then can we check for a match 
+    std::printf("Running Orders\n");
+    if(eng->any_orders()){
+        std::printf("We got em\n");
+        bid_order = eng->top_buy();
+        ask_order = eng->top_sell();
+        
+        //If orders are compatible, this function will also modify the two orders, calling by reference
+        if(compatible_orders(bid_order,ask_order)){
+            std::printf("Match Made!\n");
+            //Send the bid to the bidder's client and the ask to the asker's client
+            //bidder_ptr = bid_order.get_client_ptr();
+            //asker_ptr = ask_order.get_client_ptr();
+
+            //prepare the buffers for sending
+            //std::sprintf(bidder_ptr->server_buffer,"%s:%s:%f:%f",ask_order.symbol().c_str(),ask_order.typeName().c_str(), ask_order.price(), ask_order.volume()); 
+            //std::sprintf(asker_ptr->server_buffer,"%s:%s:%f:%f",bid_order.symbol().c_str(),bid_order.typeName().c_str(), bid_order.price(), bid_order.volume());
+
+            //now send the two buffers and the client side is responsible for updating the portfolios
+        }   
+        
+    }
+}
+
+void Server::run_matching_engine(){
+    //MatchingEngine *eng;    //Use a pointer because the = operator for MatchingEngine has been deleted
+    std::string ticker_name;
+    Bid bid_order;
+    Ask ask_order;
+    //Client* bidder_ptr;
+    //Client* asker_ptr;
+    //iterate through the whole map with the iterator
+    std::unordered_map<std::string,MatchingEngine>::iterator it = this->m.begin();
+    while(it != this->m.end()){
+        //check whether an order can be executed here
+        ticker_name = it->first;
+        //eng = &(it->second);
+        std::cout << ticker_name << std::endl;
+        //bid_order = eng->top_buy();
+        //ask_order = eng->top_sell();
+
+        //If orders are compatible, this function will also modify the two orders, calling by reference
+        /*
+        if(compatible_orders(bid_order,ask_order)){
+            std::printf("Match Made!\n");
+            //Send the bid to the bidder's client and the ask to the asker's client
+            bidder_ptr = bid_order.get_client_ptr();
+            asker_ptr = ask_order.get_client_ptr();
+
+            //prepare the buffers for sending
+            std::sprintf(bidder_ptr->server_buffer,"%s:%s:%f:%f",ask_order.symbol().c_str(),ask_order.typeName().c_str(), ask_order.price(), ask_order.volume()); 
+            std::sprintf(asker_ptr->server_buffer,"%s:%s:%f:%f",bid_order.symbol().c_str(),bid_order.typeName().c_str(), bid_order.price(), bid_order.volume());
+
+            //now send the two buffers and the client side is responsible for updating the portfolios
+
+        }   
+        */
+        //go to the next pair
+        it++;
     }
 }
 
@@ -150,12 +224,15 @@ void handle_client(Client* c, Server *s){
         std::vector<std::string> tokens = generate_tokens(buf_contents);
         
         n = tokens.size();
+        /*
         std::cout << "Number of tokens = " << n << std::endl;
         std::cout <<"Printing tokens:\n";
         for(int i=0;i<n;i++){
            std::cout << tokens[i] << " ";
         }
         std::cout << "\nDone printing tokens" << std::endl;
+        */
+
         if(n > 0){
             //We got tokens, only need to keep the last one, get rid of the rest
             std::memset(c->client_buffer, 0, c->buffer_size);
@@ -163,7 +240,7 @@ void handle_client(Client* c, Server *s){
 
             //If there is some stuff after the \r\n, then retain that, we need it. Don't use that last token
             if(!(msg_size > 2 && buf_contents[msg_size-2] == '\r' && buf_contents[msg_size-1] == '\n')){
-                std::printf("Oh no, last two characters are %d %d\n", buf_contents[msg_size-2], buf_contents[msg_size-1]);
+                //std::printf("Oh no, last two characters are %d %d\n", buf_contents[msg_size-2], buf_contents[msg_size-1]);
                 msg_size = tokens[n-1].size();
                 std::memcpy(c->client_buffer, tokens[n-1].c_str(), tokens[n-1].size());
                 n--;
@@ -171,12 +248,12 @@ void handle_client(Client* c, Server *s){
                 msg_size = 0;   //adjust the contents of the client buffer accordingly
             }
         }else{
-            std::printf("Size of buffer = %d and contents of buffer are: %s\n", msg_size, c->client_buffer);
+            //std::printf("Size of buffer = %d and contents of buffer are: %s\n", msg_size, c->client_buffer);
         }
         
         for(int i=0;i<n;i++){
             o = create_order_from_command(tokens[i]);
-            s->create_order(o);
+            s->create_order(o,c);
         }
     
     }

@@ -29,11 +29,14 @@ private:
     RunTimeScheduler rs;
 
     //This function takes an OrderPacket and puts an order into the queue
-    void create_order(OrderPacket* o); 
+    void create_order(OrderPacket* o, Client* c); 
 
     void add_order(const Order& o);
     void add_bid(const Bid& b);
     void add_ask(const Ask& a);
+
+    void run_matching_engine(); //this function is redundant
+    void run_matching_engine(std::string ticker);
 
 public:
     Server();

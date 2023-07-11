@@ -2,6 +2,8 @@
 #include "locked_queue.hpp"
 #include "order.hpp"
 
+class Server;
+
 class MatchingEngine {
 public:
     MatchingEngine();
@@ -13,6 +15,11 @@ public:
     // std::string printBuyOrders() const;
     // std::string printSellOrders() const;
     std::string printOrders() const;
+    Bid top_buy();
+    Ask top_sell();
+    bool any_buy_orders();
+    bool any_sell_orders();
+    bool any_orders();
 private:
     LockedPriorityQueue<Bid, std::greater<Bid>> buyOrders_;
     LockedPriorityQueue<Ask, std::less<Ask>> sellOrders_;

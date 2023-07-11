@@ -55,9 +55,31 @@ bool Order::operator!=(const Order& rhs) const
     return !(*this == rhs);
 }
 
+void Order::set_client_ptr(Client* c){
+    this->client_ptr = c;
+}
+
+Client* Order::get_client_ptr(){
+    return this->client_ptr;
+}
+
 std::string Order::typeName() const
 {
     return "Order";
+}
+
+void Order::update_volume(double vol){
+    this->volume_ = vol;
+    return;
+}
+
+//need to change this function to check for compatibility
+bool compatible_orders(Bid& b, Ask& a){
+    float vol_rem = std::abs(b.volume() + a.volume());
+    b.update_volume(vol_rem);
+    a.update_volume(vol_rem);
+    std::cout << "Volume of " << a << " remaining is " << a.volume() << std::endl;
+    return true;
 }
 
 Bid::Bid()
