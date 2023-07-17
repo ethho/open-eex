@@ -20,6 +20,7 @@ public:
     bool any_buy_orders();
     bool any_sell_orders();
     bool any_orders();
+    void adjust_heaps();
 private:
     LockedPriorityQueue<Bid, std::greater<Bid>> buyOrders_;
     LockedPriorityQueue<Ask, std::less<Ask>> sellOrders_;
@@ -30,6 +31,7 @@ private:
     // std::unordered_map<std::string, double> orderPrices_;
     // std::unordered_map<std::string, double> orderVolumes_;
     friend std::ostream& operator<<(std::ostream& os, const MatchingEngine& me);
+    double eps;
 };
 
 std::ostream& operator<<(std::ostream& os, const MatchingEngine& me);

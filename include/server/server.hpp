@@ -27,6 +27,7 @@ private:
     int passive_socket_fd; //file descriptor for passive socket which listens for connections 
     std::unordered_map<std::string, MatchingEngine> m;
     RunTimeScheduler rs;
+    std::vector<std::thread> all_threads;
 
     //This function takes an OrderPacket and puts an order into the queue
     void create_order(OrderPacket* o, Client* c); 
@@ -37,6 +38,7 @@ private:
 
     void run_matching_engine(); //this function is redundant
     void run_matching_engine(std::string ticker);
+    void handle_client(Client* c);
 
 public:
     Server();
@@ -48,7 +50,6 @@ public:
 
 
     friend class Client;
-    friend void handle_client(Client* c, Server* s);
 };
 
 void send_all(int sockfd, char* buf_ptr, int length, int flags);

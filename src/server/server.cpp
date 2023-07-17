@@ -35,6 +35,7 @@ void Server::create_server(const char* port_p, int buffer_size, int backlog){
     Client *c;
 
     char *client_name;
+    std::thread t;
 
     //create a copy of the port name
     this->port = new char[std::strlen(port_p)];
@@ -112,8 +113,13 @@ void Server::create_server(const char* port_p, int buffer_size, int backlog){
                 continue;
             }
 
-            handle_client(c,this);
+            this->all_threads.push_back(std::thread(&Server::handle_client,this,c));
+            //this->all_threads.push_back(t);
         }
+    }
+    int n_clients = this->all_threads.size();
+    for(int i=0;i<n_clients;i++){
+        this->all_threads[i].join();
     }
 }
 
@@ -149,6 +155,7 @@ void Server::run_matching_engine(std::string ticker){
     MatchingEngine *eng = &(this->m[ticker]);
     Client* bidder_ptr;
     Client* asker_ptr;
+    double vol_rem, price_used;
     
     //if there are both buy and sell orders only then can we check for a match 
     std::printf("Running Orders\n");
@@ -158,23 +165,20 @@ void Server::run_matching_engine(std::string ticker){
         ask_order = eng->top_sell();
         
         //If orders are compatible, this function will also modify the two orders, calling by reference
-        if(compatible_orders(bid_order,ask_order)){
+        if(compatible_orders(bid_order,ask_order, vol_rem, price_used)){
+            //We will have to pop from the heap as well
+            eng->adjust_heaps();
             
             //Send the bid to the bidder's client and the ask to the asker's client
             bidder_ptr = bid_order.get_client_ptr();
             asker_ptr = ask_order.get_client_ptr();
 
-            //prepare the buffers for sending
-            std::sprintf(asker_ptr->server_buffer,"%s:ASK:%f:%f\r\n",ticker.c_str(),ask_order.price(), ask_order.volume()); 
+            //prepare the buffers for sending and send, and the client is responsible for updating the portfolio
+            std::sprintf(asker_ptr->server_buffer,"%s:ASK:%f:%f\r\n",ticker.c_str(),price_used, vol_rem); 
             send_all(asker_ptr->active_socket_fd, asker_ptr->server_buffer, strlen(asker_ptr->server_buffer), 0);  
 
-            std::sprintf(bidder_ptr->server_buffer,"%s:BID:%f:%f\r\n",ticker.c_str(),bid_order.price(), bid_order.volume());
-            send_all(bidder_ptr->active_socket_fd, bidder_ptr->server_buffer, strlen(bidder_ptr->server_buffer), 0);
-
-            std::printf("Match Made! %s%s\n",asker_ptr->server_buffer,bidder_ptr->server_buffer);
-
-            //now send the two buffers and the client side is responsible for updating the portfolios
-            
+            std::sprintf(bidder_ptr->server_buffer,"%s:BID:%f:%f\r\n",ticker.c_str(),price_used, vol_rem);
+            send_all(bidder_ptr->active_socket_fd, bidder_ptr->server_buffer, strlen(bidder_ptr->server_buffer), 0);            
               
         }  
     }
@@ -218,7 +222,7 @@ void Server::run_matching_engine(){
     }
 }
 
-void handle_client(Client* c, Server *s){
+void Server::handle_client(Client* c){
     std::printf("Reached here, client hostname = %s\n", c->get_client_hostname_ptr());
     int n_bytes;
     int n;
@@ -270,7 +274,7 @@ void handle_client(Client* c, Server *s){
         
         for(int i=0;i<n;i++){
             o = create_order_from_command(tokens[i]);
-            s->create_order(o,c);
+            this->create_order(o,c);
         }
     
     }

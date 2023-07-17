@@ -43,7 +43,7 @@ void LockedPriorityQueue<T, Compare>::pop()
 template<typename T, typename Compare>
 T LockedPriorityQueue<T, Compare>::top() const
 {
-    std::shared_lock<std::shared_mutex> lock(mutex_);
+    std::unique_lock<std::shared_mutex> lock(mutex_);
     return heap_.top();
 }
 

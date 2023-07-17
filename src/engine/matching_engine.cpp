@@ -4,7 +4,9 @@
 
 MatchingEngine::MatchingEngine():
 buyOrders_(), sellOrders_(), orders_()
-{}
+{
+    this->eps = 0.000001;
+}
 
 void MatchingEngine::addOrder(const Order& order)
 {
@@ -57,10 +59,30 @@ bool MatchingEngine::any_sell_orders(){
 }
 
 bool MatchingEngine::any_orders(){
-    std::cout << this->sellOrders_.empty() << " " << this->buyOrders_.empty() << std::endl;
     return !(this->sellOrders_.empty() || this->buyOrders_.empty());
 }
 
+void MatchingEngine::adjust_heaps(){
+    if(!(this->sellOrders_.empty())){
+        if(this->sellOrders_.top().volume() < this->eps){
+            this->sellOrders_.pop();
+            std::cout << "Popped from heap!\n";
+        }
+    }
+
+    if(!(this->buyOrders_.empty())){
+        if(this->buyOrders_.top().volume() < this->eps){
+            this->buyOrders_.pop();
+            std::cout << "Popped from heap!\n";
+        }else{
+            std::cout << "Not popped, volume remaining is " << this->buyOrders_.top().volume();
+        }
+    }else{
+        std::cout << "No buy orders left\n";
+    }
+
+    this->printOrders();
+}
 // std::string MatchingEngine::printBuyOrders() const
 // {
 //     std::stringstream ss;

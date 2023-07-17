@@ -26,6 +26,7 @@ public:
     friend std::ostream& operator<<(std::ostream& s, const Order& o);
     virtual std::string typeName() const;
     void update_volume(double vol);
+    void update_price(double pc);
     
     void set_client_ptr(Client* c); //To set the client to which the order corresponds
     Client* get_client_ptr();   //Get a pointer to the client who has issued the order
@@ -74,7 +75,7 @@ public:
     std::string typeName() const;
 };
 
-bool compatible_orders(Bid& b, Ask& a);   //Function to check whether these orders are compatible and a trade can be made
+bool compatible_orders(Bid& b, Ask& a, double& vol_rem, double& price_used);   //Function to check whether these orders are compatible and a trade can be made
 
 #ifdef ENABLE_DOCTEST_IN_LIBRARY
 #include "doctest/doctest.h"

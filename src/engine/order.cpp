@@ -73,11 +73,24 @@ void Order::update_volume(double vol){
     return;
 }
 
+void Order::update_price(double pc){
+    this->price_ = pc;
+}
+
 //need to change this function to check for compatibility
-bool compatible_orders(Bid& b, Ask& a){
-    float vol_rem = std::abs(b.volume() + a.volume());
-    b.update_volume(vol_rem);
-    a.update_volume(vol_rem);
+bool compatible_orders(Bid& b, Ask& a, double& vol_rem, double& price_used){
+    //check if buyer's (bid) price is greater than or equal to seller's price
+    if(b.price() < a.price()){
+        return false;
+    }
+    else{
+        vol_rem = std::abs(b.volume() + a.volume());
+        price_used = (a.price() + b.price())/2;
+
+        b.update_volume(vol_rem);
+        a.update_volume(vol_rem);
+    }
+
     return true;
 }
 

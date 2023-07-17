@@ -32,14 +32,13 @@ def display_portfolio(root,fields_dict):
 def get_message(c):
     while True:
         msg = c.client.read_until(str.encode("\r\n"), timeout=c.msg_timeout)
-        msg = msg.decode()
-        print(msg)
+        msg = msg.decode()        
         if c.ended.is_set():
             break
         time.sleep(1)
 
 class ClientWindow:
-    def __init__(self, title = "Open EEX", port = 6670, capital = 100):
+    def __init__(self, title = "Open EEX", port = 6666, capital = 100):
         self.capital = capital
         self.port = port
         self.portfolio = {"Capital": self.capital}
