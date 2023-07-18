@@ -55,9 +55,45 @@ bool Order::operator!=(const Order& rhs) const
     return !(*this == rhs);
 }
 
+void Order::set_client_ptr(Client* c){
+    this->client_ptr = c;
+}
+
+Client* Order::get_client_ptr(){
+    return this->client_ptr;
+}
+
 std::string Order::typeName() const
 {
     return "Order";
+}
+
+void Order::update_volume(double vol){
+    this->volume_ = vol;
+    return;
+}
+
+void Order::update_price(double pc){
+    this->price_ = pc;
+}
+
+//need to change this function to check for compatibility
+bool compatible_orders(Bid& b, Ask& a, double& vol_rem, double& price_used){
+    //check if buyer's (bid) price is greater than or equal to seller's price
+    if(b.price() < a.price()){
+        return false;
+    }
+    else{
+        std::cout << a << "\n";
+        std::cout << b << "\n";
+        vol_rem = (b.volume() + a.volume());
+        price_used = (a.price() + b.price())/2;
+
+        b.update_volume(vol_rem >= 0.0f ? vol_rem : 0);
+        a.update_volume(vol_rem >= 0.0f ? 0: -vol_rem);
+    }
+
+    return true;
 }
 
 Bid::Bid()

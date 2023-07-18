@@ -7,11 +7,12 @@
 #endif
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "exampleConfig.h"
 #include "example.hpp"
 #include "locked_queue.hpp"
+#include "server.hpp"
 
 /*
  * Simple main program that demontrates how access
@@ -32,9 +33,13 @@ int main() {
   // Bring in the dummy class from the example source,
   // just to show that it is accessible from main.cpp.
   Dummy d = Dummy();
-  return d.doSomething() ? 0 : -1;
+  int val = d.doSomething() ? 0 : -1;
+  std::cout << val << "\n";
 
+  Server s;
+  s.create_server("6671",1024,10);
   // Do something with the LockedPriorityQueue
   // LockedPriorityQueue<int> q {};
   // q.push(3);
+  return 0;
 }

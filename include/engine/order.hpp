@@ -5,6 +5,9 @@
 
 using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
 #include <iostream>
+#include <cmath>
+
+class Client;
 
 class Order {
 public:
@@ -21,7 +24,15 @@ public:
     bool operator==(const Order& rhs) const;
     bool operator!=(const Order& rhs) const;
     friend std::ostream& operator<<(std::ostream& s, const Order& o);
-    std::string typeName() const;
+    virtual std::string typeName() const;
+    void update_volume(double vol);
+    void update_price(double pc);
+    
+    void set_client_ptr(Client* c); //To set the client to which the order corresponds
+    Client* get_client_ptr();   //Get a pointer to the client who has issued the order
+    
+    void send_order_data(); //Send the data of the order to the client who made it. Ideally this function is called once an order is executed and a trade is made
+
 protected:
     std::string symbol_;
     double price_;
@@ -29,6 +40,7 @@ protected:
     TimePoint timePlaced_;
     bool isActive_;
     int id_;
+    Client *client_ptr;
 };
 
 class Bid: public Order {
@@ -36,7 +48,7 @@ public:
     Bid();
     Bid(const std::string& symbol, double price, double volume);
     Bid(const Order& order);
-    virtual ~Bid() = default;
+    ~Bid() = default;
     /*
      * Comparator overloads sort by price-time priority.
      * If order1 has a better price than order2, then order1 is given priority
@@ -52,6 +64,7 @@ public:
     Ask();
     Ask(const std::string& symbol, double price, double volume);
     Ask(const Order& order);
+    ~Ask() = default;
     /*
      * Comparator overloads sort by price-time priority.
      * If order1 has a better price than order2, then order1 is given priority
@@ -62,6 +75,7 @@ public:
     std::string typeName() const;
 };
 
+bool compatible_orders(Bid& b, Ask& a, double& vol_rem, double& price_used);   //Function to check whether these orders are compatible and a trade can be made
 
 #ifdef ENABLE_DOCTEST_IN_LIBRARY
 #include "doctest/doctest.h"
