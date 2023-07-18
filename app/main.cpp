@@ -37,7 +37,7 @@ int main() {
   std::cout << val << "\n";
 
   Server s;
-  s.create_server("6666",1024,10);
+  s.create_server("6671",1024,10);
   // Do something with the LockedPriorityQueue
   // LockedPriorityQueue<int> q {};
   // q.push(3);

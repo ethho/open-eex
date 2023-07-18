@@ -8,9 +8,6 @@ RunTimeScheduler::RunTimeScheduler(int n_threads){
     //atomically set end to false
     end = false;
 
-    //initialise the q
-    this->q.init(nullptr);
-
     for(i=0;i<this->n_threads;i++){
         this->_threads.push_back(std::thread(&RunTimeScheduler::worker_func,this,i));
     }
@@ -42,8 +39,10 @@ void RunTimeScheduler::worker_func(int id){
             WorkerArgs* w;
             if(!this->q.is_empty()){
                 w = static_cast<WorkerArgs* > (this->q.extract_top());
-                std::printf("Thread %d took task!\n", id);
-                ((w->func))();
+                if(w != nullptr){
+                    std::printf("Thread %d took task!\n", id);
+                    ((w->func))();            
+                }
             }
         }
     }

@@ -21,6 +21,8 @@ public:
     bool any_sell_orders();
     bool any_orders();
     void adjust_heaps();
+    void pop_buy();
+    void pop_sell();
 private:
     LockedPriorityQueue<Bid, std::greater<Bid>> buyOrders_;
     LockedPriorityQueue<Ask, std::less<Ask>> sellOrders_;

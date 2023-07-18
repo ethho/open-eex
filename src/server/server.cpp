@@ -7,14 +7,19 @@ void Server::add_order(const Order& o){
     this->run_matching_engine(o.symbol());
 }
 
-void Server::add_bid(const Bid& b){
-    this->m[b.symbol()].addOrder(b);
-    this->run_matching_engine(b.symbol());
+
+void Server::add_bid(std::string ticker, double price_per_share, double volume, Client *c){
+    Bid b(ticker, price_per_share, volume);
+    b.set_client_ptr(c);
+    this->m[ticker].addOrder(b);
+    this->run_matching_engine(ticker);
 }
 
-void Server::add_ask(const Ask& a){
-    this->m[a.symbol()].addOrder(a);
-    this->run_matching_engine(a.symbol());
+void Server::add_ask(std::string ticker, double price_per_share, double volume, Client *c){
+    Ask a(ticker, price_per_share, volume);
+    a.set_client_ptr(c);
+    this->m[ticker].addOrder(a);
+    this->run_matching_engine(ticker);
 }
 
 void Server::create_server(const char* port_p, int buffer_size, int backlog){
@@ -125,15 +130,11 @@ void Server::create_server(const char* port_p, int buffer_size, int backlog){
 
 void Server::create_order(OrderPacket* o, Client* c){
     if(o->true_if_bid){
-        Bid b(std::string(o->ticker), o->price_per_share, o->num_shares);
-        b.set_client_ptr(c);
-        this->rs.launch_task(&Server::add_bid, this, b);
+        this->rs.launch_task(&Server::add_bid, this, o->ticker, o->price_per_share, o->num_shares,c);
         return;
     }else{
         //Volume must be negative for Asks
-        Ask a(std::string(o->ticker), o->price_per_share, -o->num_shares);
-        a.set_client_ptr(c);
-        this->rs.launch_task(&Server::add_ask, this, a);
+        this->rs.launch_task(&Server::add_ask, this, o->ticker, o->price_per_share, -o->num_shares,c);
         return;
     }
 }
@@ -167,17 +168,30 @@ void Server::run_matching_engine(std::string ticker){
         //If orders are compatible, this function will also modify the two orders, calling by reference
         if(compatible_orders(bid_order,ask_order, vol_rem, price_used)){
             //We will have to pop from the heap as well
-            eng->adjust_heaps();
-            
+            eng->pop_buy();
+            eng->pop_sell();
+            //Add back to the heap if the order did not settle it.
+            //We could have modified the heaps in place, but the C++ stl does not allow that I think 
+            if(bid_order.volume() != 0){
+                std::printf("Adding bid, volume = %f", bid_order.volume());
+                eng->addOrder(bid_order);
+            }
+            if(ask_order.volume() != 0){
+                std::printf("Adding ask, volume = %f", ask_order.volume());
+                eng->addOrder(ask_order);
+            }
+
+            std::printf("Got rid of all orders, %d\n", eng->any_orders());
+
             //Send the bid to the bidder's client and the ask to the asker's client
             bidder_ptr = bid_order.get_client_ptr();
             asker_ptr = ask_order.get_client_ptr();
 
             //prepare the buffers for sending and send, and the client is responsible for updating the portfolio
-            std::sprintf(asker_ptr->server_buffer,"%s:ASK:%f:%f\r\n",ticker.c_str(),price_used, vol_rem); 
+            std::sprintf(asker_ptr->server_buffer,"%s:ASK:%f:%f\r\n",ticker.c_str(),price_used, ask_order.volume()); 
             send_all(asker_ptr->active_socket_fd, asker_ptr->server_buffer, strlen(asker_ptr->server_buffer), 0);  
 
-            std::sprintf(bidder_ptr->server_buffer,"%s:BID:%f:%f\r\n",ticker.c_str(),price_used, vol_rem);
+            std::sprintf(bidder_ptr->server_buffer,"%s:BID:%f:%f\r\n",ticker.c_str(),price_used, bid_order.volume());
             send_all(bidder_ptr->active_socket_fd, bidder_ptr->server_buffer, strlen(bidder_ptr->server_buffer), 0);            
               
         }  

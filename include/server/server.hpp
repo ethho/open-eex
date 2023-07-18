@@ -33,8 +33,9 @@ private:
     void create_order(OrderPacket* o, Client* c); 
 
     void add_order(const Order& o);
-    void add_bid(const Bid& b);
-    void add_ask(const Ask& a);
+    void add_bid(std::string ticker, double price_per_share, double volume, Client *c);
+    void add_ask(std::string ticker, double price_per_share, double volume, Client *c);
+    
 
     void run_matching_engine(); //this function is redundant
     void run_matching_engine(std::string ticker);

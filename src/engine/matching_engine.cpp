@@ -28,6 +28,16 @@ Ask MatchingEngine::top_sell(){
     return this->sellOrders_.top();
 }
 
+void MatchingEngine::pop_buy(){
+    this->buyOrders_.pop();
+    return;
+}
+
+void MatchingEngine::pop_sell(){
+    this->sellOrders_.pop();
+    return;
+}
+
 void MatchingEngine::addOrder(const Bid& order)
 {
     if (order.isActive()) {
@@ -63,22 +73,23 @@ bool MatchingEngine::any_orders(){
 }
 
 void MatchingEngine::adjust_heaps(){
-    if(!(this->sellOrders_.empty())){
-        if(this->sellOrders_.top().volume() < this->eps){
-            this->sellOrders_.pop();
-            std::cout << "Popped from heap!\n";
-        }
-    }
 
     if(!(this->buyOrders_.empty())){
         if(this->buyOrders_.top().volume() < this->eps){
             this->buyOrders_.pop();
             std::cout << "Popped from heap!\n";
         }else{
-            std::cout << "Not popped, volume remaining is " << this->buyOrders_.top().volume();
+            std::cout << "Not popped, volume remaining is " << this->buyOrders_.top().volume() << "\n"; 
         }
     }else{
         std::cout << "No buy orders left\n";
+    }
+
+    if(!(this->sellOrders_.empty())){
+        if(this->sellOrders_.top().volume() < this->eps){
+            this->sellOrders_.pop();
+            std::cout << "Popped from heap!\n";
+        }
     }
 
     this->printOrders();
@@ -119,6 +130,7 @@ std::ostream& operator<<(std::ostream& os, const MatchingEngine& me)
     os << ss.str();
     return os;
 }
+
 
 
 

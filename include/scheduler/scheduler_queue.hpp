@@ -9,15 +9,11 @@
 template <typename T>
 class ConcurrentQueue{
 private:
-    //pointer to the compare function, typedef is only in the scope of the class
-    typedef bool (*cmp_func) (T,T);
 
-    std::queue<T> pq;
+    std::queue<T> q;
     std::mutex m;
-    cmp_func compare_func;
 
 public:
-    void init(cmp_func cmp = nullptr); //sets up the compare function
     bool is_empty(); //check if PQ is empty
     void add(T elt); //add elt to PQ
     int size();
@@ -25,17 +21,12 @@ public:
     T view_top(); //view elt at the top of PQ without re-inserting
 };
 
-template <typename T>
-void ConcurrentQueue<T>::init(cmp_func cmp){
-    this->compare_func = cmp;
-}
-
 //all implementations are fairly basic, with a lock and a function call followed by unlock
 template <typename T>
 bool ConcurrentQueue<T>::is_empty(){
     bool ans;
     this->m.lock();
-    ans = this->pq.empty();
+    ans = this->q.empty();
     this->m.unlock();
     return ans;
 }
@@ -43,7 +34,7 @@ bool ConcurrentQueue<T>::is_empty(){
 template <typename T>
 void ConcurrentQueue<T>::add(T elt){
     this->m.lock();
-    this->pq.push(elt);
+    this->q.push(elt);
     this->m.unlock();
 }
 
@@ -51,8 +42,11 @@ template <typename T>
 T ConcurrentQueue<T>::extract_top(){
     T elt;
     this->m.lock();
-    elt = this->pq.front();
-    this->pq.pop();
+    if(this->q.empty()){
+        return nullptr;
+    }
+    elt = this->q.front();
+    this->q.pop();
     this->m.unlock();
     return elt;
 }
@@ -61,7 +55,7 @@ template <typename T>
 T ConcurrentQueue<T>::view_top(){
     T elt;
     this->m.lock();
-    elt = this->pq.front();
+    elt = this->q.front();
     this->m.unlock();
     return elt;
 }
@@ -70,7 +64,7 @@ template <typename T>
 int ConcurrentQueue<T>::size(){
     int size;
     this->m.lock();
-    m = this->pq.size();
+    m = this->q.size();
     this->m.unlock();
     return size;
 }

@@ -84,11 +84,13 @@ bool compatible_orders(Bid& b, Ask& a, double& vol_rem, double& price_used){
         return false;
     }
     else{
-        vol_rem = std::abs(b.volume() + a.volume());
+        std::cout << a << "\n";
+        std::cout << b << "\n";
+        vol_rem = (b.volume() + a.volume());
         price_used = (a.price() + b.price())/2;
 
-        b.update_volume(vol_rem);
-        a.update_volume(vol_rem);
+        b.update_volume(vol_rem >= 0.0f ? vol_rem : 0);
+        a.update_volume(vol_rem >= 0.0f ? 0: -vol_rem);
     }
 
     return true;
