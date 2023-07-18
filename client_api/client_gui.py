@@ -19,15 +19,20 @@ def makeform(root, fields):
         entries[field] = ent
     return entries
 
-def display_portfolio(root,fields_dict):
-    entries = {}
-    
+def display_portfolio(root,fields_dict,elts,labs):    
     for field,value in fields_dict.items():
-        row = tk.Frame(root)
-        lab = tk.Label(row, width=22, text=field+": "+str(value), anchor='w')
-        row.pack(side = tk.BOTTOM, fill = tk.X, padx = 5 , pady = 5)
-        lab.pack(side = tk.LEFT)
-    return entries
+            if field not in elts.keys():
+                elts[field] = tk.Frame(root)
+                elts[field].pack(side = tk.BOTTOM, fill = tk.X, padx = 5 , pady = 5)
+    
+            if field == "Capital":
+                labs[field] = tk.Label(elts[field], width=50, text=field+": "+str(value), anchor='w')
+            else:
+                labs[field] = tk.Label(elts[field], width=50, text=f"{field} priced at {value[2]} for {value[3]} shares", anchor='w')
+    
+    
+            labs[field].pack(side = tk.LEFT)
+    return
 
 def get_message(c):
     while True:
@@ -35,13 +40,24 @@ def get_message(c):
         msg = msg.decode()        
         if c.ended.is_set():
             break
+        #Received order, now update portfolio
+        try:
+            elts = msg.split(":")
+            #Ticker is in the portfolio, now to update it
+            c.portfolio[f"{elts[0]}: {elts[1]}"] = (elts[0],elts[1],elts[2],elts[3])
+            display_portfolio(c.window, c.portfolio,c.elts, c.labs) 
+        except Exception as e:
+            pass
         time.sleep(1)
+        
 
 class ClientWindow:
-    def __init__(self, title = "Open EEX", port = 6666, capital = 100):
+    def __init__(self, title = "Open EEX", port = 6671, capital = 100):
         self.capital = capital
         self.port = port
         self.portfolio = {"Capital": self.capital}
+        self.elts = {}
+        self.labs = {}
         self.msg_timeout = 0.1
         self.fields = ("Ticker", "Bid or Ask", "Price per share", "Volume")
         self.client = self.create_connection()
@@ -61,7 +77,7 @@ class ClientWindow:
         b2 = tk.Button(self.window, text = 'Exit',
             command=(lambda e = ents: self.disconnect()))
         b2.pack(side = tk.LEFT, padx = 5, pady = 5)
-        _ = display_portfolio(self.window, self.portfolio)
+        display_portfolio(self.window, self.portfolio,self.elts, self.labs)
         
         self.msg_thread = threading.Thread(target=get_message, args=[self])
         self.msg_thread.start()
@@ -101,8 +117,12 @@ class ClientWindow:
         
         send_str = f"{ticker}:{odr_str}:{price_per_share}:{vol}\r\n"
         
-        print(send_str)
         self.client.write(send_str.encode("ascii"))
+        
+        #Sent order, deduct this from portfolio
+        self.portfolio["Capital"] = self.portfolio["Capital"] - float(price_per_share) * float(vol)
+        self.portfolio[f"{ticker}: {odr_str}"] = (ticker, odr_str, price_per_share, vol)
+        display_portfolio(self.window, self.portfolio,self.elts, self.labs)
         
 if __name__ == "__main__":
     c = ClientWindow()
