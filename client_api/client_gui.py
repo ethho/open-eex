@@ -21,17 +21,18 @@ def makeform(root, fields):
 
 def display_portfolio(root,fields_dict,elts,labs):    
     for field,value in fields_dict.items():
-            if field not in elts.keys():
-                elts[field] = tk.Frame(root)
-                elts[field].pack(side = tk.BOTTOM, fill = tk.X, padx = 5 , pady = 5)
-    
-            if field == "Capital":
-                labs[field] = tk.Label(elts[field], width=50, text=field+": "+str(value), anchor='w')
-            else:
-                labs[field] = tk.Label(elts[field], width=50, text=f"{field} priced at {value[2]} for {value[3]} shares", anchor='w')
-    
-    
+        if field == "Capital":
+            txt = field+": "+str(value)
+        else:
+            txt = f"{field} priced at {value[2]} for {value[3]} shares"
+        
+        if field not in elts.keys():
+            elts[field] = tk.Frame(root)  
+            labs[field] = tk.Label(elts[field], width=50, text=txt, anchor='w')
+            elts[field].pack(side = tk.BOTTOM, fill = tk.X, padx = 5 , pady = 5)  
             labs[field].pack(side = tk.LEFT)
+        else:
+            labs[field]["text"] = txt
     return
 
 def get_message(c):
@@ -45,6 +46,11 @@ def get_message(c):
             elts = msg.split(":")
             #Ticker is in the portfolio, now to update it
             c.portfolio[f"{elts[0]}: {elts[1]}"] = (elts[0],elts[1],elts[2],elts[3])
+            sign = 1
+            if elts[1] == "ASK":
+                sign = -1
+            c.portfolio["Capital"] = c.portfolio["Capital"] + sign * float(elts[2]) * float(elts[3])
+            print(c.portfolio)
             display_portfolio(c.window, c.portfolio,c.elts, c.labs) 
         except Exception as e:
             pass
@@ -107,16 +113,22 @@ class ClientWindow:
     
     def process_order(self, entries):
         ticker = entries["Ticker"].get()
+        sign = 1
         if entries["Bid or Ask"].get().lower() == "bid":
             odr_str = "BID"
+            sign = 1
         else:
             odr_str = "ASK"
+            sign = -1
         
         price_per_share = entries["Price per share"].get()
         vol = entries["Volume"].get()
         
         send_str = f"{ticker}:{odr_str}:{price_per_share}:{vol}\r\n"
         
+        if self.portfolio["Capital"] - sign*float(price_per_share) * float(vol) < 0:
+            print("NOT ALLOWED")
+            return
         self.client.write(send_str.encode("ascii"))
         
         #Sent order, deduct this from portfolio
