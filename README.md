@@ -5,11 +5,17 @@ The server accepts orders from clients in the format $TICKER:$VAR:$PRICE:$VOLUME
 
 To run the server:
 cmake -B build
+
 cd build
+
 make
+
 ./main
 
 Clients may connect through any means which involves establishing a socket with the server. The easiest method we found was telnet. Clients may also use the GUI present in the client_api directory, which abstracts away all the details of the server connection. The GUI includes a form to submit orders as well as display of the portfolio of the client. 
+
 To run the client GUI, use 
+
 cd client_api
+
 python client_gui.py
