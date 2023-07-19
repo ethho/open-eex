@@ -19,15 +19,24 @@ def makeform(root, fields):
         entries[field] = ent
     return entries
 
-def display_portfolio(root,fields_dict):
-    entries = {}
-    
+def display_portfolio(root,fields_dict,elts,labs):    
     for field,value in fields_dict.items():
-        row = tk.Frame(root)
-        lab = tk.Label(row, width=22, text=field+": "+str(value), anchor='w')
-        row.pack(side = tk.BOTTOM, fill = tk.X, padx = 5 , pady = 5)
-        lab.pack(side = tk.LEFT)
-    return entries
+        if field == "Capital":
+            txt = field+": "+str(value)
+        else:
+            txt = f"{field}: {value} shares"
+        
+        if field not in elts.keys():
+            elts[field] = tk.Frame(root)  
+            labs[field] = tk.Label(elts[field], width=50, text=txt, anchor='w')
+            elts[field].pack(side = tk.BOTTOM, fill = tk.X, padx = 5 , pady = 5)  
+            labs[field].pack(side = tk.LEFT)
+        else:
+            labs[field]["text"] = txt
+        if value < 1e-6 and field != "Capital":
+            #If no securities are owned remove that row
+            elts[field].destroy()
+    return
 
 def get_message(c):
     while True:
@@ -35,16 +44,35 @@ def get_message(c):
         msg = msg.decode()        
         if c.ended.is_set():
             break
+        #Received order, now update portfolio
+        try:
+            elts = msg.split(":")
+            #Ticker is in the portfolio, now to update it
+            c.portfolio[f"{elts[0]}: {elts[1]}"] = (elts[0],elts[1],elts[2],elts[3])
+            sign = 1
+            if elts[1] == "ASK":
+                sign = -1
+            c.securities["Capital"] = c.securities["Capital"] + sign * float(elts[2]) * float(elts[3])
+            c.securities[elts[0]] = c.securities[elts[0]] + sign* float(elts[3])
+            print(c.portfolio)
+            display_portfolio(c.window, c.securities,c.elts, c.labs) 
+        except Exception as e:
+            pass
         time.sleep(1)
+        
 
 class ClientWindow:
-    def __init__(self, title = "Open EEX", port = 6666, capital = 100):
+    def __init__(self, title = "Open EEX", port = 6671, capital = 100, eps = 1e-6):
         self.capital = capital
         self.port = port
         self.portfolio = {"Capital": self.capital}
+        self.securities = {"Capital": self.capital}
+        self.elts = {}
+        self.labs = {}
         self.msg_timeout = 0.1
         self.fields = ("Ticker", "Bid or Ask", "Price per share", "Volume")
         self.client = self.create_connection()
+        self.eps = 1e-6
 
         self.window = tk.Tk()
         self.window_title = title
@@ -61,7 +89,7 @@ class ClientWindow:
         b2 = tk.Button(self.window, text = 'Exit',
             command=(lambda e = ents: self.disconnect()))
         b2.pack(side = tk.LEFT, padx = 5, pady = 5)
-        _ = display_portfolio(self.window, self.portfolio)
+        display_portfolio(self.window, self.portfolio,self.elts, self.labs)
         
         self.msg_thread = threading.Thread(target=get_message, args=[self])
         self.msg_thread.start()
@@ -91,18 +119,44 @@ class ClientWindow:
     
     def process_order(self, entries):
         ticker = entries["Ticker"].get()
+        sign = 1
         if entries["Bid or Ask"].get().lower() == "bid":
             odr_str = "BID"
+            sign = 1
         else:
             odr_str = "ASK"
+            sign = -1
         
         price_per_share = entries["Price per share"].get()
         vol = entries["Volume"].get()
+            
         
         send_str = f"{ticker}:{odr_str}:{price_per_share}:{vol}\r\n"
-        
-        print(send_str)
+
+        #If you do a bid, you must have that security
+        if odr_str == "BID":
+            #You don't have that security at all
+            if ticker not in self.securities.keys():
+                print("You don't own this security - not Allowed") 
+                return
+            
+            if float(vol) > float(self.securities[ticker]) + self.eps:
+                print("You bid more shares than you have - not Allowed")
+                print(self.securities[ticker])
+                return
+        else:       
+            if self.portfolio["Capital"] + sign*float(price_per_share) * float(vol) < 0:
+                print("You don't have enough capital - not Allowed")
+                return
         self.client.write(send_str.encode("ascii"))
+        
+        #Sent order, deduct this from portfolio
+        self.securities["Capital"] = self.securities["Capital"] + float(price_per_share) * float(vol)*sign
+        if ticker not in self.securities.keys():
+            self.securities[ticker] = 0
+        self.securities[ticker] = self.securities[ticker] - sign * float(vol)
+        
+        display_portfolio(self.window, self.securities,self.elts, self.labs)
         
 if __name__ == "__main__":
     c = ClientWindow()

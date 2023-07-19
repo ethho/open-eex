@@ -190,9 +190,11 @@ void Server::run_matching_engine(std::string ticker){
             //prepare the buffers for sending and send, and the client is responsible for updating the portfolio
             std::sprintf(asker_ptr->server_buffer,"%s:ASK:%f:%f\r\n",ticker.c_str(),price_used, ask_order.volume()); 
             send_all(asker_ptr->active_socket_fd, asker_ptr->server_buffer, strlen(asker_ptr->server_buffer), 0);  
+            std::memset(asker_ptr->server_buffer, 0, asker_ptr->buffer_size);
 
             std::sprintf(bidder_ptr->server_buffer,"%s:BID:%f:%f\r\n",ticker.c_str(),price_used, bid_order.volume());
             send_all(bidder_ptr->active_socket_fd, bidder_ptr->server_buffer, strlen(bidder_ptr->server_buffer), 0);            
+            std::memset(bidder_ptr->server_buffer, 0, bidder_ptr->buffer_size);
               
         }  
     }
